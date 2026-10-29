@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}About Us — KaamNearby{% endblock %}
+
+{% block content %}
+<div class="container py-12" style="max-width: 900px;">
+  <div class="text-center mb-8">
+    <div class="section-tag">Our Mission & Story</div>
+    <h1 class="text-3xl font-bold">Empowering Local Blue-Collar Services</h1>
+    <p class="text-muted mt-2" style="font-size: 1.1rem;">
+      KaamNearby connects households with verified local tradespeople, ensuring fair wages, transparent pricing, and trusted service.
+    </p>
+  </div>
+
+  <div class="card mb-8">
+    <div class="card-body" style="font-size: 1rem; line-height: 1.8; color: var(--text-main);">
+      <h3 class="text-xl font-bold mb-3" style="color: var(--primary-navy);">The Problem We Solve</h3>
+      <p class="mb-4">
+        Every day, millions of households struggle to find dependable electricians, plumbers, painters, and carpenters when repairs are needed. Simultaneously, highly skilled local workers face unpredictable work, lack digital presence, and are frequently squeezed by intermediaries taking steep commissions.
+      </p>
+
+      <h3 class="text-xl font-bold mb-3" style="color: var(--primary-navy);">The KaamNearby Difference</h3>
+      <p class="mb-4">
+        KaamNearby was built on three foundational pillars:
+      </p>
+      <ul style="padding-left: 1.5rem; margin-bottom: 1.5rem;">
+        <li class="mb-2"><strong>Government Identity Verification:</strong> Every worker is vetted using government identification (Aadhaar, PAN, Voter ID, or ITI technical certification) verified by our team.</li>
+        <li class="mb-2"><strong>Transparent Price Negotiation:</strong> Instead of arbitrary algorithmic surge pricing, customers and workers negotiate directly on a clean multi-round counter-offer timeline.</li>
+        <li class="mb-2"><strong>Worker Dignity & Direct Earnings:</strong> Workers retain control over their starting prices, availability, and scheduling without hidden middleman fees.</li>
+      </ul>
+
+      <h3 class="text-xl font-bold mb-3" style="color: var(--primary-navy);">Our Vision</h3>
+      <p>
+        To build India's most trustworthy, hyperlocal network for on-demand home services, turning everyday craftsmanship into respected, stable livelihoods.
+      </p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-3 gap-6 text-center">
+    <div class="card" style="padding: 1.5rem; margin-bottom: 0;">
+      <div class="text-3xl font-bold" style="color: var(--primary-blue);">100%</div>
+      <div class="text-sm font-semibold text-muted mt-1">ID-Vetted Workers</div>
+    </div>
+    <div class="card" style="padding: 1.5rem; margin-bottom: 0;">
+      <div class="text-3xl font-bold" style="color: var(--teal-accent);">Direct</div>
+      <div class="text-sm font-semibold text-muted mt-1">Price Negotiation</div>
+    </div>
+    <div class="card" style="padding: 1.5rem; margin-bottom: 0;">
+      <div class="text-3xl font-bold" style="color: var(--primary-navy);">Fair</div>
+      <div class="text-sm font-semibold text-muted mt-1">Transparent Ratings</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

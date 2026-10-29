@@ -1,0 +1,74 @@
+<nav class="navbar">
+  <div class="container nav-container">
+    <a href="{{ url_for('index') }}" class="brand-logo">
+      <div class="brand-icon-box">K</div>
+      <span>Kaam<span class="accent">Nearby</span></span>
+    </a>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' else '' }}">Home</a></li>
+      <li><a href="{{ url_for('services') }}" class="{{ 'active' if request.endpoint == 'services' else '' }}">Explore Services</a></li>
+      <li><a href="{{ url_for('how_it_works') }}" class="{{ 'active' if request.endpoint == 'how_it_works' else '' }}">How It Works</a></li>
+      <li><a href="{{ url_for('about') }}" class="{{ 'active' if request.endpoint == 'about' else '' }}">About Us</a></li>
+      <li><a href="{{ url_for('contact') }}" class="{{ 'active' if request.endpoint == 'contact' else '' }}">Contact</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      {% if current_user %}
+        <a href="{{ url_for('notifications') }}" class="notif-btn" title="Notifications">
+          <i data-lucide="bell" style="width: 18px; height: 18px;"></i>
+          {% if unread_notifications_count > 0 %}
+            <span class="notif-badge-count">{{ unread_notifications_count }}</span>
+          {% endif %}
+        </a>
+
+        {% if current_user.role == 'customer' %}
+          <a href="{{ url_for('customer_dashboard') }}" class="btn btn-outline-primary btn-sm">Dashboard</a>
+        {% elif current_user.role == 'worker' %}
+          <a href="{{ url_for('worker_dashboard') }}" class="btn btn-teal btn-sm">Worker Hub</a>
+        {% elif current_user.role == 'admin' %}
+          <a href="{{ url_for('admin_dashboard') }}" class="btn btn-navy btn-sm">Admin Panel</a>
+        {% endif %}
+
+        <div class="user-dropdown">
+          <button class="dropdown-trigger" id="userDropdownTrigger" type="button">
+            <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--color-success);"></span>
+            <span>{{ current_user.name.split(' ')[0] }}</span>
+            <i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i>
+          </button>
+          <div class="dropdown-menu" id="userDropdownMenu">
+            <div style="padding: 0.5rem 1.25rem; font-size: 0.75rem; color: var(--text-muted); border-bottom: 1px solid var(--border-color);">
+              Signed in as <strong>{{ current_user.role|capitalize }}</strong><br>
+              <span style="font-size:0.7rem; color:var(--text-light);">{{ current_user.email }}</span>
+            </div>
+            {% if current_user.role == 'customer' %}
+              <a href="{{ url_for('customer_dashboard') }}"><i data-lucide="layout-dashboard" style="width:14px; height:14px; display:inline; margin-right:6px;"></i>Dashboard</a>
+              <a href="{{ url_for('customer_bookings') }}"><i data-lucide="calendar" style="width:14px; height:14px; display:inline; margin-right:6px;"></i>My Bookings</a>
+              <a href="{{ url_for('customer_profile') }}"><i data-lucide="user" style="width:14px; height:14px; display:inline; margin-right:6px;"></i>Profile</a>
+            {% elif current_user.role == 'worker' %}
+              <a href="{{ url_for('worker_dashboard') }}"><i data-lucide="layout-dashboard" style="width:14px; height:14px; display:inline; margin-right:6px;"></i>Dashboard</a>
+              <a href="{{ url_for('worker_bookings') }}"><i data-lucide="briefcase" style="width:14px; height:14px; display:inline; margin-right:6px;"></i>Booking Requests</a>
+              <a href="{{ url_for('worker_verification') }}"><i data-lucide="shield-check" style="width:14px; height:14px; display:inline; margin-right:6px;"></i>Verification</a>
+              <a href="{{ url_for('worker_profile') }}"><i data-lucide="user" style="width:14px; height:14px; display:inline; margin-right:6px;"></i>Profile</a>
+            {% elif current_user.role == 'admin' %}
+              <a href="{{ url_for('admin_dashboard') }}"><i data-lucide="shield" style="width:14px; height:14px; display:inline; margin-right:6px;"></i>Admin Overview</a>
+              <a href="{{ url_for('admin_verifications') }}"><i data-lucide="check-square" style="width:14px; height:14px; display:inline; margin-right:6px;"></i>Verifications</a>
+              <a href="{{ url_for('admin_support') }}"><i data-lucide="help-circle" style="width:14px; height:14px; display:inline; margin-right:6px;"></i>Support Inquiries</a>
+              <a href="{{ url_for('admin_users') }}"><i data-lucide="users" style="width:14px; height:14px; display:inline; margin-right:6px;"></i>Users</a>
+            {% endif %}
+            <div class="dropdown-divider"></div>
+            <a href="{{ url_for('logout') }}" style="color: var(--color-error);"><i data-lucide="log-out" style="width:14px; height:14px; display:inline; margin-right:6px;"></i>Logout</a>
+          </div>
+        </div>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="btn btn-outline btn-sm">Log In</a>
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">Get Started</a>
+      {% endif %}
+
+      <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle navigation">
+        <i data-lucide="menu"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+

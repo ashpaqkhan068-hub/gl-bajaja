@@ -1,0 +1,63 @@
+<footer class="footer">
+  <div class="container">
+    <div class="grid grid-cols-4 gap-8">
+      <div>
+        <div class="flex items-center gap-2 mb-4">
+          <div class="brand-icon-box" style="width:34px; height:34px; font-size:1rem;">K</div>
+          <span style="font-size:1.25rem; font-weight:800; color:#FFFFFF;">Kaam<span style="color:var(--teal-accent);">Nearby</span></span>
+        </div>
+        <p style="font-size: 0.875rem; line-height: 1.6; color: #94A3B8; margin-bottom: 1.25rem;">
+          Trusted Local Services, Just Around the Corner. Empowering skilled workers and connecting households with transparent pricing and verification.
+        </p>
+        <span class="badge badge-verified"><i data-lucide="shield-check" style="width:14px; height:14px;"></i> Hyperlocal & Verified</span>
+      </div>
+
+      <div>
+        <h5>Popular Services</h5>
+        <ul class="footer-links">
+          <li><a href="{{ url_for('services', category='electrical') }}">Electrical Services</a></li>
+          <li><a href="{{ url_for('services', category='plumbing') }}">Plumbing Repairs</a></li>
+          <li><a href="{{ url_for('services', category='carpentry') }}">Carpentry & Furniture</a></li>
+          <li><a href="{{ url_for('services', category='painting') }}">House Painting</a></li>
+          <li><a href="{{ url_for('services', category='ac-repair') }}">AC Servicing & Gas</a></li>
+          <li><a href="{{ url_for('services', category='cleaning') }}">Deep Home Cleaning</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h5>Platform Links</h5>
+        <ul class="footer-links">
+          <li><a href="{{ url_for('services') }}">Explore All Services</a></li>
+          <li><a href="{{ url_for('how_it_works') }}">How It Works</a></li>
+          <li><a href="{{ url_for('about') }}">About KaamNearby</a></li>
+          <li><a href="{{ url_for('register') }}?role=worker">Join as a Service Worker</a></li>
+          <li><a href="{{ url_for('contact') }}">Help & Support Center</a></li>
+          <li><a href="{{ url_for('login') }}">Account Login</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h5>Trust & Security</h5>
+        <ul class="footer-links">
+          <li><a href="{{ url_for('terms') }}">Terms of Service</a></li>
+          <li><a href="{{ url_for('privacy') }}">Privacy Policy</a></li>
+          <li><a href="{{ url_for('how_it_works') }}#negotiation">Transparent Pricing Policy</a></li>
+          <li><a href="{{ url_for('how_it_works') }}#verification">Worker Verification System</a></li>
+        </ul>
+        <div style="margin-top: 1.25rem; font-size: 0.8rem; color: #64748B;">
+          Serving major cities across Delhi NCR, Noida, Greater Noida, and expanding nationwide.
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>&copy; {{ now_year }} KaamNearby Technologies Pvt. Ltd. All rights reserved.</div>
+      <div class="flex gap-4">
+        <a href="{{ url_for('privacy') }}" style="color: #94A3B8;">Privacy</a>
+        <a href="{{ url_for('terms') }}" style="color: #94A3B8;">Terms</a>
+        <a href="{{ url_for('contact') }}" style="color: #94A3B8;">Support</a>
+      </div>
+    </div>
+  </div>
+</footer>
+

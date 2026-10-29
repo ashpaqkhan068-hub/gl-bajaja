@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Customer Dashboard — KaamNearby{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  {% include 'partials/sidebar.html' %}
+
+  <div class="dashboard-content">
+    <div class="dashboard-header">
+      <div>
+        <h1 class="dashboard-title">Welcome, {{ current_user.name }}</h1>
+        <p class="dashboard-subtitle">Manage your local service requests and price negotiations in one place.</p>
+      </div>
+      <a href="{{ url_for('services') }}" class="btn btn-primary">
+        <i data-lucide="search" style="width: 16px; height: 16px;"></i> Find a Professional
+      </a>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-value">{{ total_bookings }}</div>
+          <div class="stat-label">Total Bookings</div>
+        </div>
+        <div class="stat-icon"><i data-lucide="calendar"></i></div>
+      </div>
+
+      <div class="stat-card stat-amber">
+        <div class="stat-info">
+          <div class="stat-value">{{ pending_bookings }}</div>
+          <div class="stat-label">In Negotiation</div>
+        </div>
+        <div class="stat-icon" style="color: var(--color-warning);"><i data-lucide="repeat"></i></div>
+      </div>
+
+      <div class="stat-card stat-teal">
+        <div class="stat-info">
+          <div class="stat-value">{{ confirmed_bookings }}</div>
+          <div class="stat-label">Confirmed & Active</div>
+        </div>
+        <div class="stat-icon" style="color: var(--teal-accent);"><i data-lucide="check-circle-2"></i></div>
+      </div>
+
+      <div class="stat-card stat-green">
+        <div class="stat-info">
+          <div class="stat-value">{{ completed_bookings }}</div>
+          <div class="stat-label">Completed Services</div>
+        </div>
+        <div class="stat-icon" style="color: var(--color-success);"><i data-lucide="award"></i></div>
+      </div>
+    </div>
+
+    <!-- Recent Bookings Table -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Recent Service Bookings</h3>
+        <a href="{{ url_for('customer_bookings') }}" class="text-sm font-semibold">View All</a>
+      </div>
+      <div class="card-body p-0">
+        {% if recent_bookings %}
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Booking Ref</th>
+                  <th>Worker</th>
+                  <th>Service</th>
+                  <th>Schedule</th>
+                  <th>Current / Agreed Fee</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for b in recent_bookings %}
+                  <tr>
+                    <td><strong>{{ b.booking_ref }}</strong></td>
+                    <td>
+                      <div class="font-bold">{{ b.worker_name }}</div>
+                      <div class="text-xs text-muted">{{ b.worker_phone or 'Phone available upon confirm' }}</div>
+                    </td>
+                    <td>{{ b.service }}</td>
+                    <td>
+                      <div>{{ b.service_date }}</div>
+                      <div class="text-xs text-muted">{{ b.service_time }}</div>
+                    </td>
+                    <td>
+                      {% if b.agreed_price %}
+                        <span class="font-bold" style="color: var(--color-success);">{{ b.agreed_price|currency }} (Agreed)</span>
+                      {% else %}
+                        <span class="font-bold">{{ b.current_offer|currency }} (Offer)</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <span class="badge badge-{{ b.status }}">{{ b.status|replace('_', ' ') }}</span>
+                    </td>
+                    <td>
+                      <a href="{{ url_for('customer_booking_detail', booking_id=b.id) }}" class="btn btn-outline btn-sm">
+                        View & Negotiate
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-state-icon"><i data-lucide="clipboard-list"></i></div>
+            <div class="empty-state-title">No Service Bookings Yet</div>
+            <p class="empty-state-text">Need an electrician, plumber, or appliance repair pro? Explore verified workers today.</p>
+            <a href="{{ url_for('services') }}" class="btn btn-primary btn-sm">Browse Services</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ worker.name }} ({{ worker.category }}) — KaamNearby{% endblock %}
+
+{% block content %}
+<div class="container py-8">
+  <div style="display: grid; grid-template-columns: 2fr 1.2fr; gap: 2rem; align-items: flex-start;">
+    
+    <!-- Worker Main Info -->
+    <div>
+      <div class="card mb-6">
+        <div class="card-body">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="worker-avatar" style="width: 72px; height: 72px; font-size: 1.75rem;">
+              {{ worker.name[:1] }}
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h1 style="font-size: 1.65rem; font-weight: 800; color: var(--primary-navy);">{{ worker.name }}</h1>
+                {% if worker.verification_status == 'approved' %}
+                  <span class="badge badge-verified">
+                    <i data-lucide="shield-check" style="width: 14px; height: 14px;"></i> Verified Pro
+                  </span>
+                {% endif %}
+              </div>
+              <div style="font-size: 1.05rem; color: var(--primary-blue); font-weight: 600;">
+                {{ worker.category }} Specialist
+              </div>
+              <div class="text-sm text-muted mt-1">
+                <i data-lucide="map-pin" style="width: 14px; height: 14px; display:inline;"></i>
+                {{ worker.city }} &bull; {{ worker.experience_years }} Years Experience
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4 py-3 border-t border-b" style="border-color: var(--border-color); margin: 1.25rem 0;">
+            <div>
+              <div class="text-xs text-muted uppercase font-bold">Starting Price</div>
+              <div class="text-xl font-bold" style="color: var(--primary-navy);">{{ worker.starting_price|currency }}</div>
+            </div>
+            <div style="width: 1px; height: 32px; background: var(--border-color);"></div>
+            <div>
+              <div class="text-xs text-muted uppercase font-bold">Community Rating</div>
+              <div class="flex items-center gap-1 font-bold text-lg" style="color: #854D0E;">
+                <i data-lucide="star" style="width: 16px; height: 16px; fill: currentColor; color: #EAB308;"></i>
+                {% if worker.total_reviews > 0 %}
+                  {{ worker.avg_rating }} <span class="text-xs text-muted">({{ worker.total_reviews }} review{{ 's' if worker.total_reviews != 1 else '' }})</span>
+                {% else %}
+                  <span class="text-sm text-muted">No reviews yet</span>
+                {% endif %}
+              </div>
+            </div>
+            <div style="width: 1px; height: 32px; background: var(--border-color);"></div>
+            <div>
+              <div class="text-xs text-muted uppercase font-bold">Current Availability</div>
+              {% if worker.available %}
+                <span class="badge badge-available">Ready for Hire</span>
+              {% else %}
+                <span class="badge badge-unavailable">Offline / Busy</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <h3 class="text-lg font-bold mb-2">About This Professional</h3>
+          <p class="text-muted" style="line-height: 1.7; font-size: 0.95rem; margin-bottom: 1.5rem;">
+            {{ worker.bio }}
+          </p>
+
+          <h3 class="text-lg font-bold mb-2">Service Coverage & Locality</h3>
+          <p class="text-muted text-sm" style="line-height: 1.6;">
+            Regularly servicing locations in and around: <strong>{{ worker.service_area or worker.city }}</strong>.
+          </p>
+        </div>
+      </div>
+
+      <!-- Real Reviews Section -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Client Reviews & Ratings ({{ reviews|length }})</h3>
+        </div>
+        <div class="card-body">
+          {% if reviews %}
+            <div class="flex flex-col gap-4">
+              {% for rev in reviews %}
+                <div style="padding-bottom: 1.25rem; border-bottom: 1px solid var(--border-color);">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="font-bold text-sm">{{ rev.customer_name }}</span>
+                    <span class="text-xs text-muted">{{ rev.created_at|format_date }}</span>
+                  </div>
+                  <div class="flex items-center gap-1 mb-2">
+                    {% for i in range(rev.rating) %}
+                      <i data-lucide="star" style="width: 14px; height: 14px; fill: #EAB308; color: #EAB308;"></i>
+                    {% endfor %}
+                    <span class="text-xs font-bold text-muted" style="margin-left: 4px;">{{ rev.service }}</span>
+                  </div>
+                  <p class="text-sm text-muted" style="line-height: 1.5;">
+                    {{ rev.comment }}
+                  </p>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-center py-6 text-muted">
+              <i data-lucide="message-square" style="width: 32px; height: 32px; color: var(--text-light); margin: 0 auto 0.5rem;"></i>
+              <p class="text-sm">No reviews yet for this professional. Book now to be among the first to review!</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Booking Form Card -->
+    <div>
+      <div class="card" style="position: sticky; top: 90px;">
+        <div class="card-header" style="background-color: var(--primary-navy); color: #FFFFFF;">
+          <h3 class="card-title" style="color: #FFFFFF; font-size: 1.1rem;">
+            Book This Professional
+          </h3>
+        </div>
+        <div class="card-body">
+          {% if not worker.available %}
+            <div class="alert alert-warning mb-4">
+              <i data-lucide="clock" style="width: 18px; height: 18px;"></i>
+              <span>This worker is currently unavailable or offline. Please check back later or explore other verified pros.</span>
+            </div>
+          {% endif %}
+
+          {% if current_user and current_user.role == 'customer' %}
+            <form action="{{ url_for('customer_create_booking', worker_id=worker.id) }}" method="POST">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+              <div class="form-group">
+                <label for="service">Service Required *</label>
+                <input type="text" id="service" name="service" class="form-control" value="{{ worker.category }}" required>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div class="form-group">
+                  <label for="service_date">Date *</label>
+                  <input type="date" id="service_date" name="service_date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                  <label for="service_time">Time Slot *</label>
+                  <select id="service_time" name="service_time" class="form-control" required>
+                    <option value="Morning (9 AM - 12 PM)">Morning (9 AM - 12 PM)</option>
+                    <option value="Afternoon (12 PM - 3 PM)">Afternoon (12 PM - 3 PM)</option>
+                    <option value="Evening (3 PM - 7 PM)" selected>Evening (3 PM - 7 PM)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="address">Service Address / Landmark *</label>
+                <textarea id="address" name="address" rows="2" class="form-control" placeholder="House/Flat number, building, sector/street..." required></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="description">Problem / Work Description *</label>
+                <textarea id="description" name="description" rows="3" class="form-control" placeholder="Describe the fault or requirements in detail..." required></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="initial_offer">Your Initial Price Offer (₹) *</label>
+                <input type="number" id="initial_offer" name="initial_offer" class="form-control" value="{{ worker.starting_price|int }}" min="50" step="10" required>
+                <span class="help-text">You and the worker can negotiate this amount via counter-offers before confirmation.</span>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block btn-lg" {{ 'disabled' if not worker.available else '' }}>
+                <i data-lucide="send" style="width: 18px; height: 18px;"></i> Send Booking Request
+              </button>
+            </form>
+
+          {% elif current_user and current_user.role != 'customer' %}
+            <div class="text-center py-4">
+              <p class="text-muted text-sm mb-3">
+                You are currently signed in as a <strong>{{ current_user.role|capitalize }}</strong>. To book service professionals, please sign in with a Customer account.
+              </p>
+              <a href="{{ url_for('logout') }}" class="btn btn-outline btn-sm">Switch Account</a>
+            </div>
+          {% else %}
+            <div class="text-center py-4">
+              <p class="text-muted text-sm mb-4">
+                Please log in or create a customer account to request this service and discuss transparent pricing.
+              </p>
+              <a href="{{ url_for('login') }}" class="btn btn-primary btn-block mb-2">Log In to Book</a>
+              <a href="{{ url_for('register') }}" class="btn btn-outline btn-block">Create Free Account</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

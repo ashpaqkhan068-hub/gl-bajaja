@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Worker Service Profile — KaamNearby{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  {% include 'partials/sidebar.html' %}
+
+  <div class="dashboard-content">
+    <div class="dashboard-header">
+      <div>
+        <h1 class="dashboard-title">Service Profile Management</h1>
+        <p class="dashboard-subtitle">Keep your trade details, service areas, and starting prices up to date.</p>
+      </div>
+
+      {% if worker.verification_status == 'approved' %}
+        <span class="badge badge-verified"><i data-lucide="shield-check" style="width:14px; height:14px;"></i> Verified Profile</span>
+      {% else %}
+        <span class="badge badge-pending"><i data-lucide="clock" style="width:14px; height:14px;"></i> Under Verification</span>
+      {% endif %}
+    </div>
+
+    <div class="card" style="max-width: 720px;">
+      <div class="card-body">
+        <form action="{{ url_for('worker_profile') }}" method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+          <div class="grid grid-cols-2 gap-3">
+            <div class="form-group">
+              <label for="name">Your Name *</label>
+              <input type="text" id="name" name="name" class="form-control" value="{{ user.name }}" required>
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input type="tel" id="phone" name="phone" class="form-control" value="{{ user.phone or '' }}" placeholder="9812345678">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div class="form-group">
+              <label for="city">Base City *</label>
+              <input type="text" id="city" name="city" class="form-control" value="{{ user.city }}" required>
+            </div>
+            <div class="form-group">
+              <label for="category">Primary Service Category *</label>
+              <select id="category" name="category" class="form-control" required>
+                {% for cat in categories %}
+                  <option value="{{ cat.name }}" {{ 'selected' if worker.category == cat.name else '' }}>{{ cat.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div class="form-group">
+              <label for="starting_price">Starting Price (₹) *</label>
+              <input type="number" id="starting_price" name="starting_price" class="form-control" value="{{ worker.starting_price|int }}" min="50" step="10" required>
+              <span class="help-text">Base rate displayed to customers before detailed negotiations.</span>
+            </div>
+            <div class="form-group">
+              <label for="experience_years">Years of Experience</label>
+              <input type="number" id="experience_years" name="experience_years" class="form-control" value="{{ worker.experience_years }}" min="0" max="60">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="service_area">Localities & Service Areas Covered</label>
+            <input type="text" id="service_area" name="service_area" class="form-control" value="{{ worker.service_area or '' }}" placeholder="e.g. Pari Chowk, Sector 62, Delta 1, Alpha 2">
+            <span class="help-text">Specific neighborhoods or sectors where you are ready to travel.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="bio">Professional Bio & Experience Description</label>
+            <textarea id="bio" name="bio" rows="4" class="form-control" placeholder="Describe your background, specialty repairs, certifications, and work ethic...">{{ worker.bio or '' }}</textarea>
+          </div>
+
+          <button type="submit" class="btn btn-teal btn-lg">
+            Save Profile Updates
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

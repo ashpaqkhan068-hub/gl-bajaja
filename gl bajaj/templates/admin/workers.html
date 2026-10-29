@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Worker Directory — KaamNearby Operations{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  {% include 'partials/sidebar.html' %}
+
+  <div class="dashboard-content">
+    <div class="dashboard-header">
+      <div>
+        <h1 class="dashboard-title">Worker Directory & Profiles</h1>
+        <p class="dashboard-subtitle">Inspect worker profiles, verification milestones, ratings, and active statuses.</p>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="card mb-6">
+      <div class="card-body">
+        <form action="{{ url_for('admin_workers') }}" method="GET" class="flex items-center gap-3 flex-wrap">
+          <div style="flex: 2; min-width: 220px;">
+            <input type="text" name="q" class="form-control" placeholder="Search by worker name, category, or city..." value="{{ search_query }}">
+          </div>
+
+          <div style="flex: 1; min-width: 150px;">
+            <select name="status" class="form-control">
+              <option value="all" {{ 'selected' if current_status == 'all' else '' }}>All Verifications</option>
+              <option value="approved" {{ 'selected' if current_status == 'approved' else '' }}>Approved / Verified</option>
+              <option value="pending" {{ 'selected' if current_status == 'pending' else '' }}>Pending</option>
+              <option value="rejected" {{ 'selected' if current_status == 'rejected' else '' }}>Rejected</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-sm" style="height: 42px;">Filter Workers</button>
+          <a href="{{ url_for('admin_workers') }}" class="btn btn-outline btn-sm" style="height: 42px;" title="Reset">
+            <i data-lucide="rotate-ccw" style="width: 16px; height: 16px;"></i>
+          </a>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body p-0">
+        {% if workers %}
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Worker</th>
+                  <th>Trade Category</th>
+                  <th>Starting Rate</th>
+                  <th>City & Coverage</th>
+                  <th>Rating</th>
+                  <th>Verification</th>
+                  <th>Availability</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for w in workers %}
+                  <tr>
+                    <td>
+                      <div class="font-bold">{{ w.name }}</div>
+                      <div class="text-xs text-muted">{{ w.email }}</div>
+                      <div class="text-xs text-muted">{{ w.phone or 'No phone' }}</div>
+                    </td>
+                    <td>
+                      <span class="font-bold" style="color: var(--primary-blue);">{{ w.category }}</span>
+                      <div class="text-xs text-muted">{{ w.experience_years }} yrs experience</div>
+                    </td>
+                    <td><strong>{{ w.starting_price|currency }}</strong></td>
+                    <td class="text-xs">
+                      <div><strong>{{ w.city }}</strong></div>
+                      <div class="text-muted" style="max-width: 160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ w.service_area or 'City-wide' }}</div>
+                    </td>
+                    <td>
+                      <div class="flex items-center gap-1 font-bold text-xs" style="color: #854D0E;">
+                        <i data-lucide="star" style="width: 13px; height: 13px; fill: currentColor; color: #EAB308;"></i>
+                        {% if w.total_reviews > 0 %}
+                          {{ w.avg_rating }} ({{ w.total_reviews }})
+                        {% else %}
+                          <span class="text-muted font-normal">None</span>
+                        {% endif %}
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge badge-{{ w.verification_status }}">{{ w.verification_status }}</span>
+                    </td>
+                    <td>
+                      {% if w.available %}
+                        <span class="badge badge-available">Online</span>
+                      {% else %}
+                        <span class="badge badge-unavailable">Offline</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <a href="{{ url_for('worker_detail', worker_id=w.id) }}" target="_blank" class="btn btn-outline btn-sm" style="font-size:0.75rem;">
+                        View Profile
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-state-title">No Workers Found</div>
+            <p class="empty-state-text">No workers matched your criteria.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

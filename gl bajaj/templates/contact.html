@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact & Support — KaamNearby{% endblock %}
+
+{% block content %}
+<div class="container py-12" style="max-width: 800px;">
+  <div class="text-center mb-8">
+    <div class="section-tag">Get in Touch</div>
+    <h1 class="text-3xl font-bold">Help & Support Center</h1>
+    <p class="text-muted mt-2">Have a question, feedback, or need assistance with a service booking?</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: flex-start;">
+    <div class="form-card">
+      <form action="{{ url_for('contact') }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+        <div class="form-group">
+          <label for="name">Your Name *</label>
+          <input type="text" id="name" name="name" class="form-control" value="{{ current_user.name if current_user else '' }}" required>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address *</label>
+          <input type="email" id="email" name="email" class="form-control" value="{{ current_user.email if current_user else '' }}" required>
+        </div>
+
+        <div class="form-group">
+          <label for="subject">Subject</label>
+          <input type="text" id="subject" name="subject" class="form-control" placeholder="Booking query, verification question...">
+        </div>
+
+        <div class="form-group">
+          <label for="message">Your Message *</label>
+          <textarea id="message" name="message" rows="4" class="form-control" placeholder="Please describe how we can help..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">
+          <i data-lucide="send" style="width: 16px; height: 16px;"></i> Send Message
+        </button>
+      </form>
+    </div>
+
+    <div>
+      <div class="card mb-4">
+        <div class="card-body">
+          <h4 class="font-bold text-lg mb-2" style="color: var(--primary-navy);">Direct Support Channels</h4>
+          <div class="flex flex-col gap-3 text-sm text-muted mt-3">
+            <div class="flex items-center gap-2">
+              <i data-lucide="mail" style="width: 16px; height: 16px; color: var(--primary-blue);"></i>
+              <span>support@kaamnearby.com</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="phone" style="width: 16px; height: 16px; color: var(--teal-accent);"></i>
+              <span>+91 98765 43210 (Mon-Sat, 9 AM - 7 PM)</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="map-pin" style="width: 16px; height: 16px; color: var(--color-error);"></i>
+              <span>Knowledge Park III, Greater Noida, UP 201306</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body" style="font-size: 0.875rem; color: var(--text-muted); line-height: 1.6;">
+          <h5 class="font-bold text-main mb-1">Immediate Assistance for Active Bookings</h5>
+          <p>
+            If you have an active booking dispute or emergency, open your <strong>Bookings</strong> page to communicate directly or contact our operations desk.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

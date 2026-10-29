@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Inspect Booking {{ booking.booking_ref }} — KaamNearby{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  {% include 'partials/sidebar.html' %}
+
+  <div class="dashboard-content">
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+      <div>
+        <div class="flex items-center gap-2">
+          <a href="{{ url_for('admin_bookings') }}" class="text-sm font-semibold text-muted">&larr; Back to All Bookings</a>
+          <span class="text-muted">/</span>
+          <span class="text-sm font-bold">{{ booking.booking_ref }}</span>
+        </div>
+        <h1 class="dashboard-title mt-1">Booking Audit & Negotiation History</h1>
+      </div>
+
+      <span class="badge badge-{{ booking.status }}" style="font-size: 0.9rem; padding: 0.4rem 0.9rem;">
+        {{ booking.status|replace('_', ' ') }}
+      </span>
+    </div>
+
+    <div class="negotiation-container">
+      <div>
+        {% if booking.agreed_price %}
+          <div class="booking-agreed-banner">
+            <div class="agreed-label">Agreed Final Amount</div>
+            <div class="agreed-amount">{{ booking.agreed_price|currency }}</div>
+          </div>
+        {% endif %}
+
+        <div class="booking-summary-card mb-6">
+          <h3 class="card-title mb-4" style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+            Order Information
+          </h3>
+
+          <div class="booking-info-row">
+            <span class="booking-info-label">Customer</span>
+            <span class="booking-info-val">{{ booking.customer_name }} ({{ booking.customer_phone or booking.customer_email }})</span>
+          </div>
+
+          <div class="booking-info-row">
+            <span class="booking-info-label">Worker</span>
+            <span class="booking-info-val">{{ booking.worker_name }} ({{ booking.worker_phone or booking.worker_email }})</span>
+          </div>
+
+          <div class="booking-info-row">
+            <span class="booking-info-label">Trade</span>
+            <span class="booking-info-val">{{ booking.category }} &bull; {{ booking.service }}</span>
+          </div>
+
+          <div class="booking-info-row">
+            <span class="booking-info-label">Scheduled For</span>
+            <span class="booking-info-val">{{ booking.service_date }} ({{ booking.service_time }})</span>
+          </div>
+
+          <div class="booking-info-row">
+            <span class="booking-info-label">Address</span>
+            <span class="booking-info-val" style="max-width: 220px;">{{ booking.address }}</span>
+          </div>
+
+          <div class="booking-info-row">
+            <span class="booking-info-label">Initial Offer</span>
+            <span class="booking-info-val">{{ booking.initial_offer|currency }}</span>
+          </div>
+
+          <div class="booking-info-row">
+            <span class="booking-info-label">Created At</span>
+            <span class="booking-info-val">{{ booking.created_at|format_date }}</span>
+          </div>
+
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+            <div class="text-xs text-muted font-bold uppercase mb-1">Service Description:</div>
+            <p class="text-sm text-main">{{ booking.description }}</p>
+          </div>
+        </div>
+
+        {% if review %}
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Customer Feedback</h3>
+            </div>
+            <div class="card-body">
+              <div class="flex items-center gap-1 mb-2">
+                {% for i in range(review.rating) %}
+                  <i data-lucide="star" style="width: 16px; height: 16px; fill: #EAB308; color: #EAB308;"></i>
+                {% endfor %}
+                <span class="font-bold text-sm ml-2">{{ review.rating }} / 5 Stars</span>
+              </div>
+              <p class="text-sm text-main italic">"{{ review.comment }}"</p>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="negotiation-feed">
+        <div class="feed-header">
+          <h3 class="feed-title">Offer Negotiation Log</h3>
+          <span class="text-xs text-muted">{{ offers|length }} Offer Round{{ 's' if offers|length != 1 else '' }}</span>
+        </div>
+
+        <div class="feed-history">
+          {% for o in offers %}
+            <div class="offer-card other-offer {{ 'accepted-offer' if o.status == 'accepted' else '' }}" style="width: 100%;">
+              <div class="offer-card-header">
+                <span class="offer-sender">
+                  {{ o.sender_name }} ({{ o.sender_role|capitalize }})
+                </span>
+                <span class="offer-time">{{ o.created_at|format_date }}</span>
+              </div>
+
+              <div class="offer-amount-badge">{{ o.amount|currency }}</div>
+
+              {% if o.note %}
+                <div class="offer-note">"{{ o.note }}"</div>
+              {% endif %}
+
+              <div>
+                <span class="offer-status-tag status-{{ o.status }}">{{ o.status }}</span>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

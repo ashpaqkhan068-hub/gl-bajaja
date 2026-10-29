@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Log In — KaamNearby{% endblock %}
+
+{% block content %}
+<div class="container py-12" style="max-width: 480px;">
+  <div class="form-card">
+    <div class="text-center mb-6">
+      <div class="brand-icon-box mx-auto mb-3" style="margin: 0 auto 0.75rem;">K</div>
+      <h1 class="text-2xl font-bold">Welcome Back</h1>
+      <p class="text-muted text-sm">Sign in to your KaamNearby account</p>
+    </div>
+
+    <form action="{{ url_for('login') }}" method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      {% if request.args.get('next') %}
+        <input type="hidden" name="next" value="{{ request.args.get('next') }}">
+      {% endif %}
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" class="form-control" placeholder="name@example.com" value="{{ email or '' }}" required autofocus>
+      </div>
+
+      <div class="form-group">
+        <div class="flex items-center justify-between mb-1">
+          <label for="password" style="margin-bottom:0;">Password</label>
+        </div>
+        <div class="search-input-wrap">
+          <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+          <button type="button" class="toggle-password" data-target="password" style="position:absolute; right:10px; background:none; border:none; color:var(--text-muted); cursor:pointer;">
+            <i data-lucide="eye" style="width:18px; height:18px;"></i>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg mt-4">
+        Sign In
+      </button>
+    </form>
+
+    <div class="text-center mt-6 text-sm text-muted">
+      Don't have an account yet? <a href="{{ url_for('register') }}" class="font-bold">Create Account</a>
+    </div>
+
+    <!-- Demo Test Credentials Box for Quick Testing -->
+    <div style="margin-top: 2rem; padding: 1rem; background-color: var(--bg-subtle); border-radius: var(--radius-md); border: 1px dashed var(--border-color); font-size: 0.8rem;">
+      <div class="font-bold text-muted mb-2 flex items-center gap-1">
+        <i data-lucide="key" style="width: 14px; height: 14px;"></i> Demo Accounts for Local Testing:
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 0.35rem; color: var(--text-main);">
+        <div><strong>Admin:</strong> admin@kaamnearby.com / Admin@12345</div>
+        <div><strong>Customer:</strong> rahul.customer@example.com / Customer@12345</div>
+        <div><strong>Worker:</strong> suresh.electrician@example.com / Worker@12345</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

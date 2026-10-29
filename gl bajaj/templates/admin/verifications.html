@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Worker Verification Requests — KaamNearby Operations{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  {% include 'partials/sidebar.html' %}
+
+  <div class="dashboard-content">
+    <div class="dashboard-header">
+      <div>
+        <h1 class="dashboard-title">Worker Verification Queue</h1>
+        <p class="dashboard-subtitle">Inspect submitted government IDs, review trade qualifications, and approve workers.</p>
+      </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+      <a href="{{ url_for('admin_verifications', status='all') }}" class="filter-tab {{ 'active' if current_status == 'all' else '' }}">All Requests</a>
+      <a href="{{ url_for('admin_verifications', status='pending') }}" class="filter-tab {{ 'active' if current_status == 'pending' else '' }}">Pending Review</a>
+      <a href="{{ url_for('admin_verifications', status='approved') }}" class="filter-tab {{ 'active' if current_status == 'approved' else '' }}">Approved</a>
+      <a href="{{ url_for('admin_verifications', status='rejected') }}" class="filter-tab {{ 'active' if current_status == 'rejected' else '' }}">Rejected</a>
+    </div>
+
+    <div class="card">
+      <div class="card-body p-0">
+        {% if verifications %}
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Worker Name</th>
+                  <th>Trade & Area</th>
+                  <th>ID Document</th>
+                  <th>Submission Details</th>
+                  <th>Status</th>
+                  <th>Review Decision</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for v in verifications %}
+                  <tr>
+                    <td>
+                      <div class="font-bold">{{ v.worker_name }}</div>
+                      <div class="text-xs text-muted">{{ v.worker_email }}</div>
+                      <div class="text-xs text-muted">{{ v.worker_phone }}</div>
+                    </td>
+                    <td>
+                      <div class="font-semibold" style="color: var(--primary-blue);">{{ v.category }}</div>
+                      <div class="text-xs text-muted">{{ v.worker_city }} &bull; Starting: {{ v.starting_price|currency }}</div>
+                    </td>
+                    <td>
+                      <div class="font-bold text-sm">{{ v.doc_type }}</div>
+                      <div class="text-xs font-mono">{{ v.doc_number }}</div>
+                      {% if v.file_path %}
+                        <a href="{{ url_for('secure_uploaded_file', filename=v.file_path) }}" target="_blank" class="btn btn-outline btn-sm mt-1" style="font-size:0.75rem; padding:0.25rem 0.5rem;">
+                          <i data-lucide="external-link" style="width:12px; height:12px;"></i> View Upload
+                        </a>
+                      {% endif %}
+                    </td>
+                    <td class="text-xs">
+                      <div class="text-muted" style="max-width: 200px;">{{ v.note or 'No notes submitted.' }}</div>
+                      <div class="text-xs text-muted mt-1">{{ v.created_at|format_date }}</div>
+                    </td>
+                    <td>
+                      <span class="badge badge-{{ v.status }}">{{ v.status }}</span>
+                    </td>
+                    <td style="min-width: 240px;">
+                      {% if v.status == 'pending' %}
+                        <form action="{{ url_for('admin_review_verification', verification_id=v.id) }}" method="POST">
+                          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                          <div class="form-group mb-2">
+                            <input type="text" name="admin_note" class="form-control" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;" placeholder="Feedback or reason (optional)">
+                          </div>
+
+                          <div class="flex gap-2">
+                            <button type="submit" name="action" value="approve" class="btn btn-success btn-sm" style="flex: 1;" onclick="return confirm('Approve verification for {{ v.worker_name }}?');">
+                              <i data-lucide="check" style="width: 14px; height: 14px;"></i> Approve
+                            </button>
+                            <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm" style="flex: 1;" onclick="return confirm('Reject verification for {{ v.worker_name }}?');">
+                              <i data-lucide="x" style="width: 14px; height: 14px;"></i> Reject
+                            </button>
+                          </div>
+                        </form>
+                      {% else %}
+                        <div class="text-xs">
+                          <strong>Admin Feedback:</strong> {{ v.admin_note or 'No note provided.' }}
+                          <div class="text-muted mt-1">Reviewed on {{ v.reviewed_at|format_date if v.reviewed_at else '—' }}</div>
+                        </div>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-state-icon"><i data-lucide="check-check"></i></div>
+            <div class="empty-state-title">Verification Queue Clean</div>
+            <p class="empty-state-text">No verification submissions require review under the current filter.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

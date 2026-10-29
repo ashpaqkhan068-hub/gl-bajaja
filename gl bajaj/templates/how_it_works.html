@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}How It Works — KaamNearby{% endblock %}
+
+{% block content %}
+<div class="container py-12" style="max-width: 960px;">
+  <div class="text-center mb-10">
+    <div class="section-tag">Step-by-Step Guide</div>
+    <h1 class="text-3xl font-bold">How KaamNearby Connects You</h1>
+    <p class="text-muted mt-2" style="font-size: 1.1rem;">
+      Whether you need an urgent repair or want to offer your trade skills, here is how the platform operates.
+    </p>
+  </div>
+
+  <!-- Customer Workflow -->
+  <div class="card mb-8">
+    <div class="card-header" style="background-color: #EFF6FF;">
+      <h3 class="card-title flex items-center gap-2" style="color: var(--primary-blue);">
+        <i data-lucide="user"></i> For Customers: Getting Work Done
+      </h3>
+    </div>
+    <div class="card-body">
+      <div class="grid grid-cols-4 gap-4 text-center">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h4 class="font-bold text-sm mb-1">Search & Filter</h4>
+          <p class="text-xs text-muted">Filter local workers by category, locality, starting price, and rating.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h4 class="font-bold text-sm mb-1">Inspect Profile</h4>
+          <p class="text-xs text-muted">Review verification badges, experience years, and real customer reviews.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h4 class="font-bold text-sm mb-1">Make Initial Offer</h4>
+          <p class="text-xs text-muted">State your requirements, date/time, and proposed initial fee.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">4</div>
+          <h4 class="font-bold text-sm mb-1">Agree & Complete</h4>
+          <p class="text-xs text-muted">Accept the agreed price, receive service, and rate the completed job.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Price Negotiation Detail Section -->
+  <div class="card mb-8" id="negotiation">
+    <div class="card-header">
+      <h3 class="card-title flex items-center gap-2">
+        <i data-lucide="repeat"></i> The Multi-Round Price Negotiation System
+      </h3>
+    </div>
+    <div class="card-body" style="line-height: 1.7; font-size: 0.95rem; color: var(--text-main);">
+      <p class="mb-3">
+        Unlike static price websites or opaque bidding systems, KaamNearby implements a formal, state-tracked negotiation process:
+      </p>
+      <div style="background-color: var(--bg-subtle); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid var(--teal-accent); margin-bottom: 1.25rem;">
+        <strong>Example Workflow:</strong>
+        <ol style="padding-left: 1.25rem; margin-top: 0.5rem; font-size: 0.9rem;">
+          <li>Customer submits a booking request offering <strong>₹400</strong> for a ceiling fan installation.</li>
+          <li>The electrician inspects the job description and counters with <strong>₹500</strong> with a note: <em>"Includes heavy-duty safety bracket assembly."</em></li>
+          <li>The customer reviews the counter-offer and proposes <strong>₹450</strong>.</li>
+          <li>The electrician clicks <strong>"Accept Offer"</strong>. The booking is instantly confirmed at <strong>₹450</strong>!</li>
+        </ol>
+      </div>
+      <p>
+        Both parties have full visibility of the chronological offer log. Once an offer is accepted by either party, the agreed price is locked, preventing unexpected charges at the doorstep.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worker Workflow & Verification -->
+  <div class="card" id="verification">
+    <div class="card-header" style="background-color: #E6F7F5;">
+      <h3 class="card-title flex items-center gap-2" style="color: var(--teal-accent-dark);">
+        <i data-lucide="shield-check"></i> For Workers: Getting Verified & Hired
+      </h3>
+    </div>
+    <div class="card-body" style="line-height: 1.7; font-size: 0.95rem; color: var(--text-main);">
+      <p class="mb-3">
+        To maintain safety and quality across KaamNearby:
+      </p>
+      <ul style="padding-left: 1.5rem; margin-bottom: 1.5rem;">
+        <li class="mb-1"><strong>Document Submission:</strong> Upload government photo ID (Aadhaar, PAN, Voter ID, or ITI Trade Certificate).</li>
+        <li class="mb-1"><strong>Admin Review:</strong> Our administrative team verifies document credentials before issuing the public "Verified" badge.</li>
+        <li class="mb-1"><strong>Availability Toggle:</strong> Go offline whenever you are busy, and go online to accept new local requests.</li>
+      </ul>
+      <div class="text-center">
+        <a href="{{ url_for('register') }}?role=worker" class="btn btn-teal">
+          Register as a Worker Today
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

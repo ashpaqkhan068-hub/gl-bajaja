@@ -1,0 +1,155 @@
+<aside class="sidebar">
+  <div>
+    <div class="sidebar-header">
+      <div class="sidebar-user-role">
+        {% if current_user.role == 'customer' %}
+          Customer Portal
+        {% elif current_user.role == 'worker' %}
+          Worker Hub
+        {% elif current_user.role == 'admin' %}
+          Super Admin
+        {% endif %}
+      </div>
+      <div class="sidebar-user-name">{{ current_user.name }}</div>
+    </div>
+
+    <ul class="sidebar-nav">
+      {% if current_user.role == 'customer' %}
+        <li>
+          <a href="{{ url_for('customer_dashboard') }}" class="{{ 'active' if request.endpoint == 'customer_dashboard' else '' }}">
+            <i data-lucide="layout-dashboard"></i> Overview
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('services') }}">
+            <i data-lucide="search"></i> Find Services
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('customer_bookings') }}" class="{{ 'active' if request.endpoint in ('customer_bookings', 'customer_booking_detail') else '' }}">
+            <i data-lucide="calendar"></i> My Bookings
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('notifications') }}" class="{{ 'active' if request.endpoint == 'notifications' else '' }}">
+            <i data-lucide="bell"></i> Notifications
+            {% if unread_notifications_count > 0 %}
+              <span class="badge badge-pending" style="margin-left:auto; font-size:0.7rem; padding:0.15rem 0.45rem;">{{ unread_notifications_count }}</span>
+            {% endif %}
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('customer_profile') }}" class="{{ 'active' if request.endpoint == 'customer_profile' else '' }}">
+            <i data-lucide="user"></i> Profile Settings
+          </a>
+        </li>
+
+      {% elif current_user.role == 'worker' %}
+        <li>
+          <a href="{{ url_for('worker_dashboard') }}" class="{{ 'active' if request.endpoint == 'worker_dashboard' else '' }}">
+            <i data-lucide="layout-dashboard"></i> Overview
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('worker_bookings') }}" class="{{ 'active' if request.endpoint in ('worker_bookings', 'worker_booking_detail') else '' }}">
+            <i data-lucide="briefcase"></i> Bookings & Requests
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('worker_verification') }}" class="{{ 'active' if request.endpoint == 'worker_verification' else '' }}">
+            <i data-lucide="shield-check"></i> Identity Verification
+            {% if current_worker and current_worker.verification_status == 'pending' %}
+              <span class="badge badge-pending" style="margin-left:auto; font-size:0.65rem;">Pending</span>
+            {% elif current_worker and current_worker.verification_status == 'approved' %}
+              <span class="badge badge-verified" style="margin-left:auto; font-size:0.65rem;">Verified</span>
+            {% endif %}
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('worker_profile') }}" class="{{ 'active' if request.endpoint == 'worker_profile' else '' }}">
+            <i data-lucide="tool"></i> Service Profile
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('notifications') }}" class="{{ 'active' if request.endpoint == 'notifications' else '' }}">
+            <i data-lucide="bell"></i> Notifications
+            {% if unread_notifications_count > 0 %}
+              <span class="badge badge-pending" style="margin-left:auto; font-size:0.7rem; padding:0.15rem 0.45rem;">{{ unread_notifications_count }}</span>
+            {% endif %}
+          </a>
+        </li>
+
+      {% elif current_user.role == 'admin' %}
+        <li>
+          <a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if request.endpoint == 'admin_dashboard' else '' }}">
+            <i data-lucide="pie-chart"></i> Platform Analytics
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('admin_verifications') }}" class="{{ 'active' if request.endpoint == 'admin_verifications' else '' }}">
+            <i data-lucide="shield-alert"></i> Verification Queue
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('admin_users') }}" class="{{ 'active' if request.endpoint == 'admin_users' else '' }}">
+            <i data-lucide="users"></i> User Directory
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('admin_workers') }}" class="{{ 'active' if request.endpoint == 'admin_workers' else '' }}">
+            <i data-lucide="hard-hat"></i> Worker Profiles
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('admin_bookings') }}" class="{{ 'active' if request.endpoint in ('admin_bookings', 'admin_booking_detail') else '' }}">
+            <i data-lucide="receipt"></i> All Bookings
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('admin_support') }}" class="{{ 'active' if request.endpoint in ('admin_support', 'admin_support_detail') else '' }}">
+            <i data-lucide="help-circle"></i> Support Inquiries
+            {% if open_support_count > 0 %}
+              <span class="badge badge-pending" style="margin-left:auto; font-size:0.7rem; padding:0.15rem 0.45rem;">{{ open_support_count }}</span>
+            {% endif %}
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('admin_categories') }}" class="{{ 'active' if request.endpoint == 'admin_categories' else '' }}">
+            <i data-lucide="grid"></i> Service Categories
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('admin_audit_logs') }}" class="{{ 'active' if request.endpoint == 'admin_audit_logs' else '' }}">
+            <i data-lucide="activity"></i> Audit Logs
+          </a>
+        </li>
+      {% endif %}
+    </ul>
+  </div>
+
+  <div class="sidebar-footer">
+    {% if current_user.role == 'worker' and current_worker %}
+      <div style="margin-bottom: 0.85rem; padding: 0.75rem; background: var(--bg-subtle); border-radius: var(--radius-md);">
+        <div class="flex items-center justify-between mb-2">
+          <span style="font-size: 0.8rem; font-weight: 600;">Status:</span>
+          {% if current_worker.available %}
+            <span class="badge badge-available">Online</span>
+          {% else %}
+            <span class="badge badge-unavailable">Offline</span>
+          {% endif %}
+        </div>
+        <form action="{{ url_for('worker_toggle_availability') }}" method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button type="submit" class="btn btn-outline btn-sm btn-block" style="font-size:0.75rem;">
+            {{ 'Go Offline' if current_worker.available else 'Go Online' }}
+          </button>
+        </form>
+      </div>
+    {% endif %}
+
+    <a href="{{ url_for('logout') }}" class="btn btn-outline btn-sm btn-block" style="color:var(--color-error); border-color:rgba(220,38,38,0.2);">
+      <i data-lucide="log-out" style="width:14px; height:14px;"></i> Sign Out
+    </a>
+  </div>
+</aside>
+

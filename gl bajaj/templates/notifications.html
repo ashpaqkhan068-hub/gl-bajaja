@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications — KaamNearby{% endblock %}
+
+{% block content %}
+<div class="container py-8" style="max-width: 800px;">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold">Your Notifications</h1>
+      <p class="text-sm text-muted">Stay informed on booking updates, counter-offers, and verification milestones.</p>
+    </div>
+
+    {% if notifications %}
+      <form action="{{ url_for('notifications_mark_all_read') }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button type="submit" class="btn btn-outline btn-sm">
+          <i data-lucide="check-check" style="width: 14px; height: 14px;"></i> Mark All as Read
+        </button>
+      </form>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-body p-0">
+      {% if notifications %}
+        <div class="flex flex-col">
+          {% for notif in notifications %}
+            <a href="{{ url_for('notification_mark_read', notif_id=notif.id) }}" style="display: block; padding: 1.15rem 1.5rem; border-bottom: 1px solid var(--border-color); background-color: {{ '#F8FAFC' if not notif.is_read else '#FFFFFF' }}; transition: var(--transition);">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-start gap-3">
+                  <div style="width: 8px; height: 8px; border-radius: 50%; background: {{ 'var(--primary-blue)' if not notif.is_read else 'transparent' }}; margin-top: 6px;"></div>
+                  <div>
+                    <div class="font-bold text-sm" style="color: var(--primary-navy);">{{ notif.title }}</div>
+                    <div class="text-sm text-muted mt-1" style="line-height: 1.5;">{{ notif.message }}</div>
+                  </div>
+                </div>
+                <span class="text-xs text-muted" style="white-space: nowrap;">{{ notif.created_at|format_date }}</span>
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <div class="empty-state-icon"><i data-lucide="bell-off"></i></div>
+          <div class="empty-state-title">No Notifications Yet</div>
+          <p class="empty-state-text">You're all caught up! Updates regarding booking requests and offers will appear here.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+

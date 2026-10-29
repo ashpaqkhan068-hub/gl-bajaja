@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}User Support Messages — KaamNearby Operations{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  {% include 'partials/sidebar.html' %}
+
+  <div class="dashboard-content">
+    <div class="dashboard-header">
+      <div>
+        <h1 class="dashboard-title">User Support & Inquiries</h1>
+        <p class="dashboard-subtitle">Review incoming help requests, respond to client inquiries, and manage resolution statuses.</p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        {% if open_count > 0 %}
+          <span class="badge badge-pending" style="font-size:0.85rem; padding: 0.4rem 0.85rem;">
+            <i data-lucide="help-circle" style="width: 14px; height: 14px;"></i> {{ open_count }} Open Inquiries
+          </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+      <a href="{{ url_for('admin_support', status='all') }}" class="filter-tab {{ 'active' if current_status == 'all' else '' }}">
+        All Inquiries
+      </a>
+      <a href="{{ url_for('admin_support', status='open') }}" class="filter-tab {{ 'active' if current_status == 'open' else '' }}">
+        Open ({{ open_count }})
+      </a>
+      <a href="{{ url_for('admin_support', status='in_progress') }}" class="filter-tab {{ 'active' if current_status == 'in_progress' else '' }}">
+        In Progress ({{ in_progress_count }})
+      </a>
+      <a href="{{ url_for('admin_support', status='resolved') }}" class="filter-tab {{ 'active' if current_status == 'resolved' else '' }}">
+        Resolved ({{ resolved_count }})
+      </a>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="card mb-6">
+      <div class="card-body">
+        <form action="{{ url_for('admin_support') }}" method="GET" class="flex items-center gap-3 flex-wrap">
+          <div style="flex: 2; min-width: 220px;">
+            <input type="text" name="q" class="form-control" placeholder="Search by sender name, email, subject, or message text..." value="{{ search_query }}">
+          </div>
+
+          <div style="flex: 1; min-width: 150px;">
+            <select name="status" class="form-control">
+              <option value="all" {{ 'selected' if current_status == 'all' else '' }}>All Statuses</option>
+              <option value="open" {{ 'selected' if current_status == 'open' else '' }}>Open</option>
+              <option value="in_progress" {{ 'selected' if current_status == 'in_progress' else '' }}>In Progress</option>
+              <option value="resolved" {{ 'selected' if current_status == 'resolved' else '' }}>Resolved</option>
+              <option value="closed" {{ 'selected' if current_status == 'closed' else '' }}>Closed</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-sm" style="height: 42px;">
+            <i data-lucide="search" style="width: 16px; height: 16px;"></i> Filter
+          </button>
+          <a href="{{ url_for('admin_support') }}" class="btn btn-outline btn-sm" style="height: 42px;" title="Reset">
+            <i data-lucide="rotate-ccw" style="width: 16px; height: 16px;"></i>
+          </a>
+        </form>
+      </div>
+    </div>
+
+    <!-- Messages List -->
+    <div class="card">
+      <div class="card-body p-0">
+        {% if messages %}
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Ticket ID</th>
+                  <th>Sender</th>
+                  <th>Subject & Message Preview</th>
+                  <th>Status</th>
+                  <th>Submitted</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for m in messages %}
+                  <tr>
+                    <td><strong>#SUP-{{ m.id }}</strong></td>
+                    <td>
+                      <div class="font-bold">{{ m.name }}</div>
+                      <div class="text-xs text-muted">{{ m.email }}</div>
+                      {% if m.registered_user_role %}
+                        <span class="badge" style="background:#EFF6FF; color:var(--primary-blue); font-size:0.65rem; margin-top:3px;">
+                          Registered {{ m.registered_user_role|capitalize }}
+                        </span>
+                      {% else %}
+                        <span class="badge" style="background:var(--bg-subtle); color:var(--text-muted); font-size:0.65rem; margin-top:3px;">Guest</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <div class="font-semibold text-sm">{{ m.subject or 'General Inquiry' }}</div>
+                      <div class="text-xs text-muted" style="max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px;">
+                        {{ m.message }}
+                      </div>
+                    </td>
+                    <td>
+                      {% if m.status == 'open' %}
+                        <span class="badge badge-pending">Open</span>
+                      {% elif m.status == 'in_progress' %}
+                        <span class="badge badge-countered">In Progress</span>
+                      {% elif m.status == 'resolved' %}
+                        <span class="badge badge-completed">Resolved</span>
+                      {% else %}
+                        <span class="badge badge-unavailable">Closed</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-xs text-muted">{{ m.created_at|format_date }}</td>
+                    <td>
+                      <a href="{{ url_for('admin_support_detail', msg_id=m.id) }}" class="btn btn-outline btn-sm" style="font-size:0.75rem;">
+                        View & Manage
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-state-icon"><i data-lucide="inbox"></i></div>
+            <div class="empty-state-title">No Support Inquiries</div>
+            <p class="empty-state-text">No user support messages match your filter criteria.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

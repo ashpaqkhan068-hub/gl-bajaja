@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Job {{ booking.booking_ref }} — KaamNearby{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  {% include 'partials/sidebar.html' %}
+
+  <div class="dashboard-content">
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+      <div>
+        <div class="flex items-center gap-2">
+          <a href="{{ url_for('worker_bookings') }}" class="text-sm font-semibold text-muted">&larr; Back to Requests</a>
+          <span class="text-muted">/</span>
+          <span class="text-sm font-bold">{{ booking.booking_ref }}</span>
+        </div>
+        <h1 class="dashboard-title mt-1">Manage Job & Price Negotiation</h1>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="badge badge-{{ booking.status }}" style="font-size: 0.85rem; padding: 0.35rem 0.85rem;">
+          {{ booking.status|replace('_', ' ') }}
+        </span>
+      </div>
+    </div>
+
+    <div class="negotiation-container">
+
+      <!-- Left Column: Customer Details & Job Operations -->
+      <div>
+        {% if booking.agreed_price %}
+          <div class="booking-agreed-banner">
+            <div class="agreed-label">Confirmed Agreed Price</div>
+            <div class="agreed-amount">{{ booking.agreed_price|currency }}</div>
+            <div style="font-size: 0.8rem; opacity: 0.9;">Collect directly from customer after completing service</div>
+          </div>
+        {% endif %}
+
+        <div class="booking-summary-card mb-6">
+          <h3 class="card-title mb-4" style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+            Customer & Work Details
+          </h3>
+
+          <div class="booking-info-row">
+            <span class="booking-info-label">Customer Name</span>
+            <span class="booking-info-val">{{ booking.customer_name }}</span>
+          </div>
+
+          <div class="booking-info-row">
+            <span class="booking-info-label">Phone Contact</span>
+            <span class="booking-info-val">
+              {% if booking.status in ('confirmed', 'in_progress', 'completed') %}
+                <strong>{{ booking.customer_phone or 'Not provided' }}</strong>
+              {% else %}
+                <span class="text-muted text-xs">Unlocked upon agreement</span>
+              {% endif %}
+            </span>
+          </div>
+
+          <div class="booking-info-row">
+            <span class="booking-info-label">Service Type</span>
+            <span class="booking-info-val">{{ booking.service }}</span>
+          </div>
+
+          <div class="booking-info-row">
+            <span class="booking-info-label">Requested Date</span>
+            <span class="booking-info-val">{{ booking.service_date }}</span>
+          </div>
+
+          <div class="booking-info-row">
+            <span class="booking-info-label">Time Window</span>
+            <span class="booking-info-val">{{ booking.service_time }}</span>
+          </div>
+
+          <div class="booking-info-row">
+            <span class="booking-info-label">Destination Address</span>
+            <span class="booking-info-val" style="max-width: 220px;">{{ booking.address }}</span>
+          </div>
+
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+            <div class="text-xs text-muted font-bold uppercase mb-1">Customer Problem Description:</div>
+            <p class="text-sm text-main" style="line-height: 1.5;">{{ booking.description }}</p>
+          </div>
+
+          <!-- Job Progression Buttons -->
+          <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+            {% if booking.status == 'confirmed' %}
+              <form action="{{ url_for('worker_start_job', booking_id=booking.id) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit" class="btn btn-teal btn-block">
+                  <i data-lucide="play" style="width: 16px; height: 16px;"></i> Start Work (Mark In Progress)
+                </button>
+              </form>
+            {% endif %}
+
+            {% if booking.status in ('confirmed', 'in_progress') %}
+              <form action="{{ url_for('worker_complete_job', booking_id=booking.id) }}" method="POST" data-confirm="Mark this service as fully completed?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit" class="btn btn-success btn-block">
+                  <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i> Mark Service as Completed
+                </button>
+              </form>
+            {% endif %}
+
+            {% if booking.status in ('pending', 'countered') %}
+              <form action="{{ url_for('worker_reject_booking', booking_id=booking.id) }}" method="POST" data-confirm="Decline this booking request?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <input type="hidden" name="reason" value="Worker unavailable or unable to service requirements.">
+                <button type="submit" class="btn btn-outline btn-sm btn-block" style="color: var(--color-error); border-color: rgba(220,38,38,0.3);">
+                  Decline Job Request
+                </button>
+              </form>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Review Received Box -->
+        {% if review %}
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Customer Feedback</h3>
+            </div>
+            <div class="card-body">
+              <div class="flex items-center gap-1 mb-2">
+                {% for i in range(review.rating) %}
+                  <i data-lucide="star" style="width: 16px; height: 16px; fill: #EAB308; color: #EAB308;"></i>
+                {% endfor %}
+                <span class="font-bold text-sm ml-2">{{ review.rating }} / 5 Stars</span>
+              </div>
+              <p class="text-sm text-main italic">"{{ review.comment }}"</p>
+              <div class="text-xs text-muted mt-2">Posted on {{ review.created_at|format_date }}</div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Right Column: Multi-Round Price Negotiation Timeline -->
+      <div class="negotiation-feed">
+        <div class="feed-header">
+          <div>
+            <h3 class="feed-title">Price Negotiation History</h3>
+            <span class="text-xs text-muted">Counter-offer discussion with {{ booking.customer_name }}</span>
+          </div>
+          {% if booking.status in ('pending', 'countered') %}
+            <span class="badge badge-countered">Active Negotiation</span>
+          {% elif booking.status == 'confirmed' %}
+            <span class="badge badge-confirmed">Confirmed</span>
+          {% endif %}
+        </div>
+
+        <!-- Negotiation History Feed -->
+        <div class="feed-history">
+          {% for o in offers %}
+            {% set is_me = (o.sender_id == current_user.id) %}
+            <div class="offer-card {{ 'my-offer' if is_me else 'other-offer' }} {{ 'accepted-offer' if o.status == 'accepted' else '' }}">
+              <div class="offer-card-header">
+                <span class="offer-sender">
+                  {% if is_me %}
+                    <i data-lucide="hard-hat" style="width: 14px; height: 14px; display:inline;"></i> You (Worker)
+                  {% else %}
+                    <i data-lucide="user" style="width: 14px; height: 14px; display:inline;"></i> {{ o.sender_name }} (Customer)
+                  {% endif %}
+                </span>
+                <span class="offer-time">{{ o.created_at|format_date }}</span>
+              </div>
+
+              <div class="offer-amount-badge">{{ o.amount|currency }}</div>
+
+              {% if o.note %}
+                <div class="offer-note">"{{ o.note }}"</div>
+              {% endif %}
+
+              <div>
+                <span class="offer-status-tag status-{{ o.status }}">{{ o.status }}</span>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- Worker Action Controls -->
+        <div class="offer-action-box">
+          {% if booking.status in ('pending', 'countered') %}
+            {% if latest_offer and latest_offer.sender_id != current_user.id %}
+              <!-- Customer made the latest offer, worker can accept or counter -->
+              <div class="action-decision-row">
+                <form action="{{ url_for('worker_accept_offer', booking_id=booking.id) }}" method="POST" style="flex: 1;" data-confirm="Accept customer offer of {{ latest_offer.amount|currency }}? This confirms the booking and locks the agreed price.">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                  <button type="submit" class="btn btn-success btn-block btn-lg">
+                    <i data-lucide="check" style="width: 18px; height: 18px;"></i> Accept {{ latest_offer.amount|currency }}
+                  </button>
+                </form>
+
+                <button type="button" class="btn btn-outline-primary btn-lg" id="toggleCounterBtn" style="flex: 1;">
+                  Make Counter-Offer
+                </button>
+              </div>
+
+              <!-- Counter Offer Form Box (toggled by button) -->
+              <div class="counter-form-card" id="counterOfferBox" style="display: none;">
+                <h4 class="font-bold text-sm mb-3">Propose Your Counter-Offer</h4>
+                <form action="{{ url_for('worker_submit_offer', booking_id=booking.id) }}" method="POST">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                  <div class="form-group">
+                    <label for="amount">Counter Amount (₹) *</label>
+                    <input type="number" id="amount" name="amount" class="form-control" min="50" step="10" placeholder="e.g. 500" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="note">Clarification Note for Customer</label>
+                    <input type="text" id="note" name="note" class="form-control" placeholder="e.g. Price includes heavy-duty parts or extended labor.">
+                  </div>
+
+                  <button type="submit" class="btn btn-primary btn-block">
+                    Send Counter-Offer to Customer
+                  </button>
+                </form>
+              </div>
+
+            {% else %}
+              <!-- Worker submitted the latest offer, waiting for customer -->
+              <div class="alert alert-info mb-0">
+                <i data-lucide="clock" style="width: 18px; height: 18px;"></i>
+                <span>Your counter-offer of <strong>{{ latest_offer.amount|currency }}</strong> is currently under review by {{ booking.customer_name }}.</span>
+              </div>
+            {% endif %}
+
+          {% elif booking.status == 'confirmed' %}
+            <div class="alert alert-success mb-0">
+              <i data-lucide="check-circle" style="width: 18px; height: 18px;"></i>
+              <span>Booking is Confirmed! Final price: <strong>{{ booking.agreed_price|currency }}</strong>. Please arrive on time at the customer's address.</span>
+            </div>
+
+          {% elif booking.status == 'in_progress' %}
+            <div class="alert alert-info mb-0">
+              <i data-lucide="tool" style="width: 18px; height: 18px;"></i>
+              <span>Job is currently marked In Progress. Click "Mark Service as Completed" once the job is finished.</span>
+            </div>
+
+          {% elif booking.status == 'completed' %}
+            <div class="alert alert-success mb-0">
+              <i data-lucide="award" style="width: 18px; height: 18px;"></i>
+              <span>Job Completed! Earnings collected: <strong>{{ booking.agreed_price|currency }}</strong>.</span>
+            </div>
+
+          {% elif booking.status in ('cancelled', 'rejected') %}
+            <div class="alert alert-error mb-0">
+              <i data-lucide="x-circle" style="width: 18px; height: 18px;"></i>
+              <span>This booking was {{ booking.status }}. Reason: {{ booking.cancel_reason or 'No reason provided.' }}</span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+

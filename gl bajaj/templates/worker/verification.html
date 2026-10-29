@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}Worker Identity Verification — KaamNearby{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  {% include 'partials/sidebar.html' %}
+
+  <div class="dashboard-content">
+    <div class="dashboard-header">
+      <div>
+        <h1 class="dashboard-title">Identity & Trade Verification</h1>
+        <p class="dashboard-subtitle">Submit government identity credentials to earn the official "Verified" trust badge.</p>
+      </div>
+
+      {% if worker.verification_status == 'approved' %}
+        <span class="badge badge-verified" style="font-size:0.9rem; padding: 0.4rem 0.9rem;">
+          <i data-lucide="shield-check" style="width:16px; height:16px;"></i> Verification Approved
+        </span>
+      {% elif worker.verification_status == 'pending' %}
+        <span class="badge badge-pending" style="font-size:0.9rem; padding: 0.4rem 0.9rem;">
+          <i data-lucide="clock" style="width:16px; height:16px;"></i> Review in Progress
+        </span>
+      {% else %}
+        <span class="badge badge-rejected" style="font-size:0.9rem; padding: 0.4rem 0.9rem;">
+          <i data-lucide="alert-circle" style="width:16px; height:16px;"></i> Verification Rejected
+        </span>
+      {% endif %}
+    </div>
+
+    <!-- Status Overview Card -->
+    {% if worker.verification_status == 'approved' %}
+      <div class="card mb-6" style="border-left: 4px solid var(--color-success); background-color: #F0FDF4;">
+        <div class="card-body">
+          <div class="flex items-center gap-2 mb-1" style="color: var(--color-success); font-weight: 700;">
+            <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
+            <span>Your Profile is Fully Verified and Active</span>
+          </div>
+          <p class="text-sm text-muted">
+            Your government identity documents were approved by KaamNearby administration. Your profile is prominently featured with a verification trust badge for household customers.
+          </p>
+        </div>
+      </div>
+    {% elif worker.verification_status == 'rejected' %}
+      <div class="card mb-6" style="border-left: 4px solid var(--color-error); background-color: #FEF2F2;">
+        <div class="card-body">
+          <div class="flex items-center gap-2 mb-1" style="color: var(--color-error); font-weight: 700;">
+            <i data-lucide="alert-triangle" style="width: 20px; height: 20px;"></i>
+            <span>Action Required: Verification Re-submission Needed</span>
+          </div>
+          <p class="text-sm text-muted">
+            Your previous verification submission was rejected. Please review the feedback notes below, upload a clear identity document, and re-submit for review.
+          </p>
+        </div>
+      </div>
+    {% else %}
+      <div class="card mb-6" style="border-left: 4px solid var(--color-warning); background-color: #FFFBEB;">
+        <div class="card-body">
+          <div class="flex items-center gap-2 mb-1" style="color: var(--color-warning); font-weight: 700;">
+            <i data-lucide="clock" style="width: 20px; height: 20px;"></i>
+            <span>Documents Awaiting Administrative Review</span>
+          </div>
+          <p class="text-sm text-muted">
+            Our operations team reviews document submissions within 24-48 hours. Once verified, your profile will immediately become bookable by customers across your service areas.
+          </p>
+        </div>
+      </div>
+    {% endif %}
+
+    <div style="display: grid; grid-template-columns: 1.2fr 1.5fr; gap: 2rem; align-items: flex-start;">
+      <!-- Submission Form -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Submit Verification Document</h3>
+        </div>
+        <div class="card-body">
+          <form action="{{ url_for('worker_verification') }}" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+            <div class="form-group">
+              <label for="doc_type">Document Type *</label>
+              <select id="doc_type" name="doc_type" class="form-control" required>
+                <option value="Aadhaar Card">Aadhaar Card</option>
+                <option value="PAN Card">PAN Card</option>
+                <option value="Voter ID Card">Voter ID Card</option>
+                <option value="Driving License">Driving License</option>
+                <option value="Trade / ITI Certificate">Trade / ITI Certificate</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="doc_number">Document / ID Number *</label>
+              <input type="text" id="doc_number" name="doc_number" class="form-control" placeholder="e.g. XXXX-XXXX-4891 or ABCDE1234F" required>
+            </div>
+
+            <div class="form-group">
+              <label for="document_file">Upload Document Scan / Photo (Optional)</label>
+              <input type="file" id="document_file" name="document_file" class="form-control" accept=".png,.jpg,.jpeg,.pdf">
+              <span class="help-text">Accepted formats: JPG, PNG, PDF (Max 5MB). Encrypted and protected from public access.</span>
+            </div>
+
+            <div class="form-group">
+              <label for="note">Additional Notes / Trade Experience Details</label>
+              <textarea id="note" name="note" rows="2" class="form-control" placeholder="Mention any technical institutes, apprenticeships, or specific trade licenses..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-teal btn-block">
+              <i data-lucide="upload" style="width: 16px; height: 16px;"></i> Submit for Verification
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Verification History Table -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Verification Submission History</h3>
+        </div>
+        <div class="card-body p-0">
+          {% if verifications %}
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Document</th>
+                    <th>ID Number</th>
+                    <th>Status</th>
+                    <th>Admin Feedback</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for v in verifications %}
+                    <tr>
+                      <td>
+                        <div class="font-bold">{{ v.doc_type }}</div>
+                        {% if v.file_path %}
+                          <a href="{{ url_for('secure_uploaded_file', filename=v.file_path) }}" target="_blank" class="text-xs text-primary" style="display:inline-flex; align-items:center; gap:2px;">
+                            <i data-lucide="file-text" style="width:12px; height:12px;"></i> View File
+                          </a>
+                        {% endif %}
+                      </td>
+                      <td class="text-xs">{{ v.doc_number }}</td>
+                      <td>
+                        <span class="badge badge-{{ v.status }}">{{ v.status }}</span>
+                      </td>
+                      <td class="text-xs text-muted">
+                        {{ v.admin_note or '—' }}
+                      </td>
+                      <td class="text-xs text-muted">{{ v.created_at|format_date }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="empty-state py-6">
+              <div class="empty-state-title text-sm">No verification documents submitted yet.</div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

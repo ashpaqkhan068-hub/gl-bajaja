@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Support Ticket #SUP-{{ msg.id }} — KaamNearby Operations{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  {% include 'partials/sidebar.html' %}
+
+  <div class="dashboard-content">
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+      <div>
+        <div class="flex items-center gap-2">
+          <a href="{{ url_for('admin_support') }}" class="text-sm font-semibold text-muted">&larr; Back to Support Messages</a>
+          <span class="text-muted">/</span>
+          <span class="text-sm font-bold">Ticket #SUP-{{ msg.id }}</span>
+        </div>
+        <h1 class="dashboard-title mt-1">Support Inquiry Details</h1>
+      </div>
+
+      <div>
+        {% if msg.status == 'open' %}
+          <span class="badge badge-pending" style="font-size: 0.9rem; padding: 0.4rem 0.9rem;">Status: Open</span>
+        {% elif msg.status == 'in_progress' %}
+          <span class="badge badge-countered" style="font-size: 0.9rem; padding: 0.4rem 0.9rem;">Status: In Progress</span>
+        {% elif msg.status == 'resolved' %}
+          <span class="badge badge-completed" style="font-size: 0.9rem; padding: 0.4rem 0.9rem;">Status: Resolved</span>
+        {% else %}
+          <span class="badge badge-unavailable" style="font-size: 0.9rem; padding: 0.4rem 0.9rem;">Status: Closed</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1.6fr 1.1fr; gap: 2rem; align-items: flex-start;">
+      <!-- Left Column: Message Content -->
+      <div>
+        <div class="card mb-6">
+          <div class="card-header">
+            <h3 class="card-title">Subject: {{ msg.subject or 'General Support Inquiry' }}</h3>
+            <span class="text-xs text-muted">{{ msg.created_at|format_date }}</span>
+          </div>
+          <div class="card-body">
+            <div style="background-color: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.5rem; line-height: 1.8; font-size: 0.95rem; white-space: pre-wrap; color: var(--text-main);">{{ msg.message }}</div>
+
+            {% if msg.admin_notes %}
+              <div style="margin-top: 1.5rem; padding: 1.25rem; background-color: #F8FAFC; border-left: 4px solid var(--primary-blue); border-radius: var(--radius-md);">
+                <div class="font-bold text-sm mb-1" style="color: var(--primary-navy);">Internal Admin Notes / Action Log:</div>
+                <p class="text-sm text-muted" style="line-height: 1.6;">{{ msg.admin_notes }}</p>
+                <div class="text-xs text-muted mt-2">
+                  Last updated by <strong>{{ msg.resolved_by_name or 'Admin' }}</strong> on {{ msg.updated_at|format_date }}
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Sender Info & Status Management -->
+      <div>
+        <!-- Sender Profile Card -->
+        <div class="card mb-6">
+          <div class="card-header">
+            <h3 class="card-title">Sender Information</h3>
+          </div>
+          <div class="card-body">
+            <div class="booking-info-row">
+              <span class="booking-info-label">Name</span>
+              <span class="booking-info-val">{{ msg.name }}</span>
+            </div>
+
+            <div class="booking-info-row">
+              <span class="booking-info-label">Email</span>
+              <span class="booking-info-val">
+                <a href="mailto:{{ msg.email }}">{{ msg.email }}</a>
+              </span>
+            </div>
+
+            <div class="booking-info-row">
+              <span class="booking-info-label">Account Link</span>
+              <span class="booking-info-val">
+                {% if msg.registered_user_name %}
+                  <span class="badge" style="background:#EFF6FF; color:var(--primary-blue);">
+                    {{ msg.registered_user_role|capitalize }} (#{{ msg.user_id }})
+                  </span>
+                {% else %}
+                  <span class="text-xs text-muted">Guest Submission</span>
+                {% endif %}
+              </span>
+            </div>
+
+            {% if msg.registered_user_phone %}
+              <div class="booking-info-row">
+                <span class="booking-info-label">Phone</span>
+                <span class="booking-info-val">{{ msg.registered_user_phone }}</span>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Update Resolution Status Form -->
+        <div class="card">
+          <div class="card-header" style="background-color: var(--primary-navy); color: #FFFFFF;">
+            <h3 class="card-title" style="color: #FFFFFF; font-size: 1rem;">
+              <i data-lucide="check-square" style="width: 16px; height: 16px; display:inline; margin-right:4px;"></i> Update Ticket Status
+            </h3>
+          </div>
+          <div class="card-body">
+            <form action="{{ url_for('admin_support_update', msg_id=msg.id) }}" method="POST">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+              <div class="form-group">
+                <label for="status">Resolution Status *</label>
+                <select id="status" name="status" class="form-control" required>
+                  <option value="open" {{ 'selected' if msg.status == 'open' else '' }}>Open (Needs Attention)</option>
+                  <option value="in_progress" {{ 'selected' if msg.status == 'in_progress' else '' }}>In Progress (Under Review)</option>
+                  <option value="resolved" {{ 'selected' if msg.status == 'resolved' else '' }}>Resolved (Completed)</option>
+                  <option value="closed" {{ 'selected' if msg.status == 'closed' else '' }}>Closed (Archived)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="admin_notes">Resolution Notes / Action Taken</label>
+                <textarea id="admin_notes" name="admin_notes" rows="4" class="form-control" placeholder="Note down resolution steps, phone discussion details, or follow-up outcome...">{{ msg.admin_notes or '' }}</textarea>
+                <span class="help-text">If the user is registered, an in-app notification with this status update will be automatically sent to their portal.</span>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block">
+                Save & Update Ticket
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

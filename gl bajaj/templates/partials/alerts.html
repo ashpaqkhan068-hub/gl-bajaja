@@ -1,0 +1,13 @@
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="alerts-container">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'error' if category == 'danger' or category == 'error' else ('success' if category == 'success' else ('warning' if category == 'warning' else 'info')) }}">
+          <span>{{ message }}</span>
+          <button type="button" class="alert-close" aria-label="Close alert">&times;</button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+

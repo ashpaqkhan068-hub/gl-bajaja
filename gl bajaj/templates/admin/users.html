@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}User Directory — KaamNearby Operations{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  {% include 'partials/sidebar.html' %}
+
+  <div class="dashboard-content">
+    <div class="dashboard-header">
+      <div>
+        <h1 class="dashboard-title">User Directory</h1>
+        <p class="dashboard-subtitle">Manage customer, worker, and administrative user accounts.</p>
+      </div>
+    </div>
+
+    <!-- Filter & Search Bar -->
+    <div class="card mb-6">
+      <div class="card-body">
+        <form action="{{ url_for('admin_users') }}" method="GET" class="flex items-center gap-3 flex-wrap">
+          <div style="flex: 2; min-width: 220px;">
+            <input type="text" name="q" class="form-control" placeholder="Search by name, email, or city..." value="{{ search_query }}">
+          </div>
+
+          <div style="flex: 1; min-width: 150px;">
+            <select name="role" class="form-control">
+              <option value="all" {{ 'selected' if current_role == 'all' else '' }}>All Roles</option>
+              <option value="customer" {{ 'selected' if current_role == 'customer' else '' }}>Customers</option>
+              <option value="worker" {{ 'selected' if current_role == 'worker' else '' }}>Workers</option>
+              <option value="admin" {{ 'selected' if current_role == 'admin' else '' }}>Administrators</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-sm" style="height: 42px;">
+            <i data-lucide="search" style="width: 16px; height: 16px;"></i> Search
+          </button>
+          <a href="{{ url_for('admin_users') }}" class="btn btn-outline btn-sm" style="height: 42px;" title="Reset">
+            <i data-lucide="rotate-ccw" style="width: 16px; height: 16px;"></i>
+          </a>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body p-0">
+        {% if users %}
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>User Details</th>
+                  <th>Role</th>
+                  <th>City</th>
+                  <th>Status</th>
+                  <th>Joined</th>
+                  <th>Account Controls</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for u in users %}
+                  <tr>
+                    <td>#{{ u.id }}</td>
+                    <td>
+                      <div class="font-bold">{{ u.name }}</div>
+                      <div class="text-xs text-muted">{{ u.email }}</div>
+                      <div class="text-xs text-muted">{{ u.phone or 'No phone' }}</div>
+                    </td>
+                    <td>
+                      {% if u.role == 'admin' %}
+                        <span class="badge" style="background:#EDE9FE; color:#6D28D9;">Admin</span>
+                      {% elif u.role == 'worker' %}
+                        <span class="badge" style="background:var(--teal-light); color:var(--teal-accent-dark);">Worker</span>
+                      {% else %}
+                        <span class="badge" style="background:#EFF6FF; color:var(--primary-blue);">Customer</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ u.city }}</td>
+                    <td>
+                      {% if u.is_active %}
+                        <span class="badge badge-completed">Active</span>
+                      {% else %}
+                        <span class="badge badge-cancelled">Suspended</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-xs text-muted">{{ u.created_at|format_date }}</td>
+                    <td>
+                      {% if u.id == current_user.id %}
+                        <span class="text-xs text-muted italic">Current Session</span>
+                      {% else %}
+                        <form action="{{ url_for('admin_toggle_user_status', user_id=u.id) }}" method="POST" data-confirm="Are you sure you want to change status for {{ u.name }}?">
+                          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                          {% if u.is_active %}
+                            <button type="submit" class="btn btn-outline btn-sm" style="color:var(--color-error); border-color:rgba(220,38,38,0.3); font-size:0.75rem;">
+                              Suspend Account
+                            </button>
+                          {% else %}
+                            <button type="submit" class="btn btn-outline btn-sm" style="color:var(--color-success); border-color:rgba(21,128,61,0.3); font-size:0.75rem;">
+                              Reactivate Account
+                            </button>
+                          {% endif %}
+                        </form>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-state-title">No Users Found</div>
+            <p class="empty-state-text">No accounts matched your search criteria.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

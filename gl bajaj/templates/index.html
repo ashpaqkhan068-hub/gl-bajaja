@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+
+{% block title %}KaamNearby — Trusted Local Services, Just Around the Corner{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+  <div class="container">
+    <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+      <div class="hero-badge">
+        <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
+        <span>100% ID-Verified Local Blue-Collar Professionals</span>
+      </div>
+      <h1 class="hero-title">
+        Find Trusted Local Professionals <span class="highlight">Near You.</span>
+      </h1>
+      <p class="hero-subtitle" style="margin-left: auto; margin-right: auto;">
+        Book skilled electricians, plumbers, carpenters, and technicians for everyday home services. Compare profiles, negotiate transparent pricing, and manage bookings seamlessly.
+      </p>
+
+      <!-- Real Working Search Bar -->
+      <div class="search-card">
+        <form action="{{ url_for('services') }}" method="GET" class="search-form">
+          <div class="search-group">
+            <label for="q">Service or Problem</label>
+            <div class="search-input-wrap">
+              <input type="text" id="q" name="q" placeholder="e.g. Switch repair, tap leakage...">
+            </div>
+          </div>
+
+          <div class="search-group">
+            <label for="category">Category</label>
+            <div class="search-input-wrap">
+              <select id="category" name="category">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                  <option value="{{ cat.slug }}">{{ cat.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="search-group">
+            <label for="city">City or Area</label>
+            <div class="search-input-wrap">
+              <input type="text" id="city" name="city" placeholder="e.g. Greater Noida, Noida">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary search-submit-btn" style="height: 44px; margin-top: auto;">
+            <i data-lucide="search" style="width: 18px; height: 18px;"></i>
+            <span>Find Workers</span>
+          </button>
+        </form>
+      </div>
+
+      <div class="flex items-center justify-center gap-6 mt-6 text-sm text-muted">
+        <div class="flex items-center gap-1">
+          <i data-lucide="check-circle" style="width: 16px; height: 16px; color: var(--color-success);"></i>
+          <span>Direct Price Negotiation</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <i data-lucide="check-circle" style="width: 16px; height: 16px; color: var(--color-success);"></i>
+          <span>Verified Backgrounds</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <i data-lucide="check-circle" style="width: 16px; height: 16px; color: var(--color-success);"></i>
+          <span>Zero Middleman Inflation</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Service Categories Section -->
+<section class="py-16">
+  <div class="container">
+    <div class="section-header text-center">
+      <div class="section-tag">Explore Specialties</div>
+      <h2 class="section-title">What Service Do You Need Today?</h2>
+      <p class="section-subtitle" style="margin: 0.35rem auto 0;">
+        From urgent electrical fault finding to modular carpentry, connect with trained and verified local service professionals.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-4 gap-6">
+      {% for cat in categories %}
+        <a href="{{ url_for('services', category=cat.slug) }}" class="category-card">
+          <div class="category-icon-wrapper">
+            {% if cat.slug == 'electrical' %}
+              <i data-lucide="zap"></i>
+            {% elif cat.slug == 'plumbing' %}
+              <i data-lucide="droplet"></i>
+            {% elif cat.slug == 'carpentry' %}
+              <i data-lucide="hammer"></i>
+            {% elif cat.slug == 'painting' %}
+              <i data-lucide="paint-brush"></i>
+            {% elif cat.slug == 'ac-repair' %}
+              <i data-lucide="wind"></i>
+            {% elif cat.slug == 'cleaning' %}
+              <i data-lucide="sparkles"></i>
+            {% else %}
+              <i data-lucide="wrench"></i>
+            {% endif %}
+          </div>
+          <div class="category-title">{{ cat.name }}</div>
+          <div class="category-desc">{{ cat.description }}</div>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-16" style="background-color: #FFFFFF; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+  <div class="container">
+    <div class="section-header text-center">
+      <div class="section-tag">Simple & Transparent</div>
+      <h2 class="section-title">How KaamNearby Works</h2>
+      <p class="section-subtitle" style="margin: 0.35rem auto 0;">
+        A straightforward workflow designed to give you clarity on worker reliability, timing, and fair pricing.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-4 gap-6">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <h3 class="step-title">Find a Service</h3>
+        <p class="step-desc">Search by your locality and service category to discover available workers in your immediate neighborhood.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <h3 class="step-title">Choose a Worker</h3>
+        <p class="step-desc">Inspect real worker profiles, ID verification badges, experience years, service areas, and customer ratings.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <h3 class="step-title">Discuss & Agree on Price</h3>
+        <p class="step-desc">Submit your initial offer. Exchange transparent counter-offers directly with the worker until both parties agree.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">4</div>
+        <h3 class="step-title">Confirm & Complete</h3>
+        <p class="step-desc">Once the price is accepted, your booking is confirmed. Pay the agreed price upon service completion and leave a review.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Approved Workers Section -->
+<section class="py-16">
+  <div class="container">
+    <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
+      <div>
+        <div class="section-tag">Verified Professionals</div>
+        <h2 class="section-title">Top-Rated Local Workers</h2>
+        <p class="section-subtitle">Real verified professionals currently available in your area.</p>
+      </div>
+      <a href="{{ url_for('services') }}" class="btn btn-outline-primary">
+        <span>View All Workers</span>
+        <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+      </a>
+    </div>
+
+    {% if featured_workers %}
+      <div class="grid grid-cols-3 gap-6">
+        {% for worker in featured_workers %}
+          <div class="worker-card">
+            <div>
+              <div class="worker-header">
+                <div class="worker-avatar">
+                  {{ worker.name[:1] }}
+                </div>
+                <div class="worker-meta">
+                  <div class="flex items-center gap-2">
+                    <span class="worker-name">{{ worker.name }}</span>
+                    {% if worker.verification_status == 'approved' %}
+                      <span class="badge badge-verified" title="Identity Verified by KaamNearby Admin">
+                        <i data-lucide="check" style="width: 12px; height: 12px;"></i> Verified
+                      </span>
+                    {% endif %}
+                  </div>
+                  <div class="worker-category">{{ worker.category }}</div>
+                  <div class="worker-location">
+                    <i data-lucide="map-pin" style="width: 13px; height: 13px; display:inline;"></i>
+                    {{ worker.city }} &bull; {{ worker.experience_years }} yrs exp
+                  </div>
+                </div>
+              </div>
+
+              <p class="worker-bio">{{ worker.bio }}</p>
+            </div>
+
+            <div>
+              <div class="worker-stats-row">
+                <div class="worker-price">
+                  <span class="label">Starting From</span>
+                  {{ worker.starting_price|currency }}
+                </div>
+                <div class="rating-badge">
+                  <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                  {% if worker.total_reviews > 0 %}
+                    <span>{{ worker.avg_rating }} ({{ worker.total_reviews }})</span>
+                  {% else %}
+                    <span>New</span>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="flex gap-2">
+                <a href="{{ url_for('worker_detail', worker_id=worker.id) }}" class="btn btn-primary btn-sm btn-block">
+                  View Profile & Book
+                </a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon"><i data-lucide="users"></i></div>
+        <div class="empty-state-title">No Featured Workers Found</div>
+        <p class="empty-state-text">New professionals are completing identity verification. Check back shortly!</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Join as a Worker CTA Banner -->
+<section class="py-16" style="background: linear-gradient(135deg, var(--primary-navy) 0%, #1E3A8A 100%); color: #FFFFFF;">
+  <div class="container text-center">
+    <div style="max-width: 680px; margin: 0 auto;">
+      <span class="badge" style="background: rgba(15, 157, 138, 0.2); color: #2DD4BF; border: 1px solid rgba(45, 212, 191, 0.3); margin-bottom: 1rem;">
+        Worker Empowerment
+      </span>
+      <h2 style="color: #FFFFFF; font-size: 2.35rem; margin-bottom: 1rem;">
+        Are You a Skilled Local Professional?
+      </h2>
+      <p style="color: #CBD5E1; font-size: 1.05rem; margin-bottom: 2rem; line-height: 1.6;">
+        Join KaamNearby to connect directly with household clients in your locality. Set your own starting prices, negotiate fair rates, and build a verified reputation.
+      </p>
+      <div class="flex justify-center gap-4 flex-wrap">
+        <a href="{{ url_for('register') }}?role=worker" class="btn btn-teal btn-lg">
+          <i data-lucide="user-plus" style="width: 18px; height: 18px;"></i>
+          <span>Register as a Worker</span>
+        </a>
+        <a href="{{ url_for('how_it_works') }}" class="btn btn-outline btn-lg" style="color: #FFFFFF; border-color: rgba(255,255,255,0.3);">
+          Learn How It Works
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQs Section -->
+<section class="py-16">
+  <div class="container" style="max-width: 840px;">
+    <div class="section-header text-center">
+      <div class="section-tag">Frequently Asked Questions</div>
+      <h2 class="section-title">Got Questions? We Have Answers.</h2>
+    </div>
+
+    <div class="flex flex-col gap-4">
+      <div class="card" style="margin-bottom: 0;">
+        <div class="card-header">
+          <h4 style="font-size: 1rem; color: var(--primary-navy);">How does price negotiation work?</h4>
+        </div>
+        <div class="card-body" style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+          When you request a service, you submit an initial price offer. The worker can accept your offer or submit a counter-offer with an explanatory note. You can then accept the counter-offer or propose another figure. The booking is only confirmed once both sides agree on a final amount.
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 0;">
+        <div class="card-header">
+          <h4 style="font-size: 1rem; color: var(--primary-navy);">How are workers verified?</h4>
+        </div>
+        <div class="card-body" style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+          Every worker submits government-issued identification (such as Aadhaar Card, PAN Card, Voter ID, or Trade Certification). Our administrators manually inspect the documentation before issuing a "Verified" badge.
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 0;">
+        <div class="card-header">
+          <h4 style="font-size: 1rem; color: var(--primary-navy);">When do I pay for the service?</h4>
+        </div>
+        <div class="card-body" style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+          You only pay the worker the mutually agreed price once the job has been completed to your satisfaction at your residence or workspace.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

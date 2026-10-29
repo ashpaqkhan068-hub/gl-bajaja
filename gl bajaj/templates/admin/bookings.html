@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}All Bookings — KaamNearby Operations{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  {% include 'partials/sidebar.html' %}
+
+  <div class="dashboard-content">
+    <div class="dashboard-header">
+      <div>
+        <h1 class="dashboard-title">Platform Bookings Management</h1>
+        <p class="dashboard-subtitle">Monitor service agreements, negotiation histories, and fulfillment status.</p>
+      </div>
+    </div>
+
+    <!-- Filter & Search Bar -->
+    <div class="card mb-6">
+      <div class="card-body">
+        <form action="{{ url_for('admin_bookings') }}" method="GET" class="flex items-center gap-3 flex-wrap">
+          <div style="flex: 2; min-width: 220px;">
+            <input type="text" name="q" class="form-control" placeholder="Search by booking ref, customer, worker, service..." value="{{ search_query }}">
+          </div>
+
+          <div style="flex: 1; min-width: 150px;">
+            <select name="status" class="form-control">
+              <option value="all" {{ 'selected' if current_status == 'all' else '' }}>All Statuses</option>
+              <option value="pending" {{ 'selected' if current_status == 'pending' else '' }}>Pending</option>
+              <option value="countered" {{ 'selected' if current_status == 'countered' else '' }}>Countered</option>
+              <option value="confirmed" {{ 'selected' if current_status == 'confirmed' else '' }}>Confirmed</option>
+              <option value="in_progress" {{ 'selected' if current_status == 'in_progress' else '' }}>In Progress</option>
+              <option value="completed" {{ 'selected' if current_status == 'completed' else '' }}>Completed</option>
+              <option value="cancelled" {{ 'selected' if current_status == 'cancelled' else '' }}>Cancelled</option>
+              <option value="rejected" {{ 'selected' if current_status == 'rejected' else '' }}>Rejected</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-sm" style="height: 42px;">Filter</button>
+          <a href="{{ url_for('admin_bookings') }}" class="btn btn-outline btn-sm" style="height: 42px;" title="Reset">
+            <i data-lucide="rotate-ccw" style="width: 16px; height: 16px;"></i>
+          </a>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body p-0">
+        {% if bookings %}
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Booking Ref</th>
+                  <th>Customer</th>
+                  <th>Assigned Worker</th>
+                  <th>Service Task</th>
+                  <th>Offer / Agreed</th>
+                  <th>Status</th>
+                  <th>Updated</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for b in bookings %}
+                  <tr>
+                    <td><strong>{{ b.booking_ref }}</strong></td>
+                    <td>
+                      <div class="font-bold">{{ b.customer_name }}</div>
+                      <div class="text-xs text-muted">{{ b.customer_email }}</div>
+                    </td>
+                    <td>
+                      <div class="font-bold">{{ b.worker_name }}</div>
+                      <div class="text-xs text-muted">{{ b.category }}</div>
+                    </td>
+                    <td>{{ b.service }}</td>
+                    <td>
+                      {% if b.agreed_price %}
+                        <div class="font-bold" style="color: var(--color-success);">{{ b.agreed_price|currency }}</div>
+                        <div class="text-xs text-muted">Final Agreed</div>
+                      {% else %}
+                        <div class="font-bold">{{ b.current_offer|currency }}</div>
+                        <div class="text-xs text-muted">Negotiation</div>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <span class="badge badge-{{ b.status }}">{{ b.status|replace('_', ' ') }}</span>
+                    </td>
+                    <td class="text-xs text-muted">{{ b.updated_at|format_date }}</td>
+                    <td>
+                      <a href="{{ url_for('admin_booking_detail', booking_id=b.id) }}" class="btn btn-outline btn-sm" style="font-size:0.75rem;">
+                        Inspect Negotiation
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-state-title">No Bookings Found</div>
+            <p class="empty-state-text">No booking records match your query.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

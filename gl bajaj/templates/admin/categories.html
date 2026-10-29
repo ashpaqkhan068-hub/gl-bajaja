@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Service Categories — KaamNearby Operations{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  {% include 'partials/sidebar.html' %}
+
+  <div class="dashboard-content">
+    <div class="dashboard-header">
+      <div>
+        <h1 class="dashboard-title">Service Categories Management</h1>
+        <p class="dashboard-subtitle">Configure available service trades and category taxonomy across KaamNearby.</p>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem; align-items: flex-start;">
+      <!-- Categories Table -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Active Service Categories ({{ categories|length }})</h3>
+        </div>
+        <div class="card-body p-0">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Slug</th>
+                <th>Icon</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for cat in categories %}
+                <tr>
+                  <td>
+                    <div class="font-bold">{{ cat.name }}</div>
+                    <div class="text-xs text-muted" style="max-width: 220px;">{{ cat.description }}</div>
+                  </td>
+                  <td><code>{{ cat.slug }}</code></td>
+                  <td>
+                    <i data-lucide="{{ cat.icon }}" style="width: 18px; height: 18px; color: var(--primary-blue);"></i>
+                  </td>
+                  <td>
+                    {% if cat.is_active %}
+                      <span class="badge badge-completed">Active</span>
+                    {% else %}
+                      <span class="badge badge-unavailable">Disabled</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <form action="{{ url_for('admin_toggle_category', cat_id=cat.id) }}" method="POST">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                      <button type="submit" class="btn btn-outline btn-sm" style="font-size: 0.75rem;">
+                        {{ 'Disable' if cat.is_active else 'Enable' }}
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Add Category Form -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Add New Service Category</h3>
+        </div>
+        <div class="card-body">
+          <form action="{{ url_for('admin_categories') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+            <div class="form-group">
+              <label for="name">Category Name *</label>
+              <input type="text" id="name" name="name" class="form-control" placeholder="e.g. Masonry & Tiles" required>
+            </div>
+
+            <div class="form-group">
+              <label for="slug">URL Slug *</label>
+              <input type="text" id="slug" name="slug" class="form-control" placeholder="e.g. masonry-tiles" required>
+            </div>
+
+            <div class="form-group">
+              <label for="icon">Lucide Icon Name *</label>
+              <input type="text" id="icon" name="icon" class="form-control" placeholder="e.g. hammer, tool, zap" value="wrench" required>
+            </div>
+
+            <div class="form-group">
+              <label for="description">Short Description</label>
+              <textarea id="description" name="description" rows="3" class="form-control" placeholder="Brief summary of tasks included in this category..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+              <i data-lucide="plus" style="width: 16px; height: 16px;"></i> Create Category
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}System Audit Logs — KaamNearby Operations{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  {% include 'partials/sidebar.html' %}
+
+  <div class="dashboard-content">
+    <div class="dashboard-header">
+      <div>
+        <h1 class="dashboard-title">System Activity & Audit Logs</h1>
+        <p class="dashboard-subtitle">Immutable timeline of authentication events, booking creations, and administrative actions.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body p-0">
+        {% if logs %}
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Log ID</th>
+                  <th>Action</th>
+                  <th>Initiated By</th>
+                  <th>Event Details</th>
+                  <th>IP Address</th>
+                  <th>Timestamp</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for log in logs %}
+                  <tr>
+                    <td>#{{ log.id }}</td>
+                    <td>
+                      <span class="badge" style="background:#EFF6FF; color:var(--primary-blue); font-size:0.75rem;">
+                        {{ log.action }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="font-bold">{{ log.user_name or 'System Event' }}</div>
+                      <div class="text-xs text-muted">{{ log.user_role|capitalize if log.user_role else '' }}</div>
+                    </td>
+                    <td class="text-xs text-muted" style="max-width: 320px;">
+                      {{ log.details or '—' }}
+                    </td>
+                    <td class="text-xs font-mono">{{ log.ip_address or '127.0.0.1' }}</td>
+                    <td class="text-xs text-muted">{{ log.created_at|format_date }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-state-title">No Audit Logs</div>
+            <p class="empty-state-text">No activity events recorded yet.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

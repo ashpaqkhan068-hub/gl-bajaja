@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}Explore Services & Verified Workers — KaamNearby{% endblock %}
+
+{% block content %}
+<div class="container py-8">
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold mb-2">Find Local Service Professionals</h1>
+    <p class="text-muted">
+      Discover background-verified technicians and tradespeople in your city.
+      {% if total_workers > 0 %}
+        Showing <strong>{{ total_workers }}</strong> available professional{{ 's' if total_workers != 1 else '' }}.
+      {% endif %}
+    </p>
+  </div>
+
+  <!-- Search & Filters Container -->
+  <div class="card mb-8">
+    <div class="card-body">
+      <form action="{{ url_for('services') }}" method="GET" class="grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: end;">
+        <div class="form-group mb-0">
+          <label for="q">Keyword</label>
+          <input type="text" id="q" name="q" class="form-control" placeholder="Skill, name, issue..." value="{{ search_query }}">
+        </div>
+
+        <div class="form-group mb-0">
+          <label for="category">Category</label>
+          <select id="category" name="category" class="form-control">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+              <option value="{{ cat.slug }}" {{ 'selected' if category_slug == cat.slug or selected_category == cat.name else '' }}>
+                {{ cat.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group mb-0">
+          <label for="city">City / Area</label>
+          <input type="text" id="city" name="city" class="form-control" placeholder="e.g. Greater Noida" value="{{ city_query }}">
+        </div>
+
+        <div class="form-group mb-0">
+          <label for="min_price">Min Price (₹)</label>
+          <input type="number" id="min_price" name="min_price" class="form-control" placeholder="₹ Min" value="{{ min_price }}">
+        </div>
+
+        <div class="form-group mb-0">
+          <label for="max_price">Max Price (₹)</label>
+          <input type="number" id="max_price" name="max_price" class="form-control" placeholder="₹ Max" value="{{ max_price }}">
+        </div>
+
+        <div class="form-group mb-0">
+          <label for="sort">Sort By</label>
+          <select id="sort" name="sort" class="form-control">
+            <option value="rating_desc" {{ 'selected' if sort_by == 'rating_desc' else '' }}>Top Rated</option>
+            <option value="price_asc" {{ 'selected' if sort_by == 'price_asc' else '' }}>Price: Low to High</option>
+            <option value="price_desc" {{ 'selected' if sort_by == 'price_desc' else '' }}>Price: High to Low</option>
+            <option value="experience_desc" {{ 'selected' if sort_by == 'experience_desc' else '' }}>Experience</option>
+            <option value="name_asc" {{ 'selected' if sort_by == 'name_asc' else '' }}>Name (A-Z)</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-2" style="height: 44px;">
+          <input type="checkbox" id="available" name="available" value="1" {{ 'checked' if available_only == '1' else '' }}>
+          <label for="available" style="font-size: 0.85rem; font-weight: 600; cursor: pointer; margin-bottom: 0;">
+            Available Now Only
+          </label>
+        </div>
+
+        <div class="flex gap-2">
+          <button type="submit" class="btn btn-primary btn-block">
+            <i data-lucide="filter" style="width: 16px; height: 16px;"></i> Apply Filters
+          </button>
+          <a href="{{ url_for('services') }}" class="btn btn-outline" title="Reset Filters">
+            <i data-lucide="rotate-ccw" style="width: 16px; height: 16px;"></i>
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Workers Grid -->
+  {% if workers %}
+    <div class="grid grid-cols-3 gap-6">
+      {% for worker in workers %}
+        <div class="worker-card">
+          <div>
+            <div class="worker-header">
+              <div class="worker-avatar">
+                {{ worker.name[:1] }}
+              </div>
+              <div class="worker-meta">
+                <div class="flex items-center gap-2">
+                  <span class="worker-name">{{ worker.name }}</span>
+                  {% if worker.verification_status == 'approved' %}
+                    <span class="badge badge-verified" title="Identity Verified">
+                      <i data-lucide="check" style="width: 12px; height: 12px;"></i> Verified
+                    </span>
+                  {% endif %}
+                </div>
+                <div class="worker-category">{{ worker.category }}</div>
+                <div class="worker-location">
+                  <i data-lucide="map-pin" style="width: 13px; height: 13px; display:inline;"></i>
+                  {{ worker.city }} &bull; {{ worker.experience_years }} yrs exp
+                </div>
+              </div>
+            </div>
+
+            <p class="worker-bio">{{ worker.bio }}</p>
+
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+              <strong>Service Areas:</strong> {{ worker.service_area or worker.city }}
+            </div>
+          </div>
+
+          <div>
+            <div class="worker-stats-row">
+              <div class="worker-price">
+                <span class="label">Starting From</span>
+                {{ worker.starting_price|currency }}
+              </div>
+              <div class="flex items-center gap-2">
+                {% if worker.available %}
+                  <span class="badge badge-available">Available</span>
+                {% else %}
+                  <span class="badge badge-unavailable">Offline</span>
+                {% endif %}
+                <div class="rating-badge">
+                  <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                  {% if worker.total_reviews > 0 %}
+                    <span>{{ worker.avg_rating }} ({{ worker.total_reviews }})</span>
+                  {% else %}
+                    <span>New</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <a href="{{ url_for('worker_detail', worker_id=worker.id) }}" class="btn btn-primary btn-block">
+              View Profile & Book
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if total_pages > 1 %}
+      <div class="flex justify-center items-center gap-2 mt-8">
+        {% if page > 1 %}
+          <a href="{{ url_for('services', page=page-1, q=search_query, category=category_slug, city=city_query, min_price=min_price, max_price=max_price, available=available_only, sort=sort_by) }}" class="btn btn-outline btn-sm">
+            Previous
+          </a>
+        {% endif %}
+
+        <span class="text-sm text-muted">Page {{ page }} of {{ total_pages }}</span>
+
+        {% if page < total_pages %}
+          <a href="{{ url_for('services', page=page+1, q=search_query, category=category_slug, city=city_query, min_price=min_price, max_price=max_price, available=available_only, sort=sort_by) }}" class="btn btn-outline btn-sm">
+            Next
+          </a>
+        {% endif %}
+      </div>
+    {% endif %}
+
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon"><i data-lucide="search-x"></i></div>
+      <div class="empty-state-title">No Matching Service Workers Found</div>
+      <p class="empty-state-text">
+        Try adjusting your search criteria, widening the price range, or selecting another service category.
+      </p>
+      <a href="{{ url_for('services') }}" class="btn btn-outline-primary">Reset Filters</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+

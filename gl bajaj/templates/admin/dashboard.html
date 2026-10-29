@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard — KaamNearby Operations{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  {% include 'partials/sidebar.html' %}
+
+  <div class="dashboard-content">
+    <div class="dashboard-header">
+      <div>
+        <h1 class="dashboard-title">Platform Operations Overview</h1>
+        <p class="dashboard-subtitle">Live system telemetry, user growth metrics, and verification queue.</p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        {% if open_support_messages > 0 %}
+          <a href="{{ url_for('admin_support', status='open') }}" class="btn btn-outline-primary btn-sm">
+            <i data-lucide="help-circle" style="width: 14px; height: 14px;"></i>
+            <span>{{ open_support_messages }} Support Ticket{{ 's' if open_support_messages != 1 else '' }} Open</span>
+          </a>
+        {% endif %}
+        {% if pending_verifications > 0 %}
+          <a href="{{ url_for('admin_verifications') }}" class="btn btn-navy btn-sm">
+            <i data-lucide="shield-alert" style="width: 14px; height: 14px;"></i>
+            <span>{{ pending_verifications }} Verifications Pending</span>
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Platform Telemetry Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-value">{{ total_customers }}</div>
+          <div class="stat-label">Registered Customers</div>
+        </div>
+        <div class="stat-icon"><i data-lucide="users"></i></div>
+      </div>
+
+      <div class="stat-card stat-teal">
+        <div class="stat-info">
+          <div class="stat-value">{{ total_workers }}</div>
+          <div class="stat-label">Total Workers ({{ approved_workers }} Verified)</div>
+        </div>
+        <div class="stat-icon" style="color: var(--teal-accent);"><i data-lucide="hard-hat"></i></div>
+      </div>
+
+      <div class="stat-card stat-amber">
+        <div class="stat-info">
+          <div class="stat-value">{{ pending_verifications }}</div>
+          <div class="stat-label">Pending Verifications</div>
+        </div>
+        <div class="stat-icon" style="color: var(--color-warning);"><i data-lucide="file-check"></i></div>
+      </div>
+
+      <div class="stat-card stat-green">
+        <div class="stat-info">
+          <div class="stat-value">{{ platform_gmv|currency }}</div>
+          <div class="stat-label">Completed Service Volume</div>
+        </div>
+        <div class="stat-icon" style="color: var(--color-success);"><i data-lucide="trending-up"></i></div>
+      </div>
+    </div>
+
+    <!-- Secondary Metrics Row -->
+    <div class="grid grid-cols-4 gap-6 mb-8">
+      <div class="card" style="margin-bottom: 0;">
+        <div class="card-body">
+          <div class="text-sm font-bold text-muted uppercase">Total Bookings</div>
+          <div class="text-2xl font-bold mt-1">{{ total_bookings }}</div>
+          <div class="text-xs text-muted mt-1">{{ confirmed_bookings }} Confirmed &bull; {{ completed_bookings }} Completed</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 0;">
+        <div class="card-body">
+          <div class="text-sm font-bold text-muted uppercase">Worker Vetted Rate</div>
+          <div class="text-2xl font-bold mt-1" style="color: var(--teal-accent);">
+            {{ ((approved_workers / total_workers) * 100)|round(0)|int if total_workers > 0 else 0 }}%
+          </div>
+          <div class="text-xs text-muted mt-1">{{ approved_workers }} of {{ total_workers }} verified</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 0;">
+        <div class="card-body">
+          <div class="text-sm font-bold text-muted uppercase">Completion Rate</div>
+          <div class="text-2xl font-bold mt-1" style="color: var(--color-success);">
+            {{ ((completed_bookings / total_bookings) * 100)|round(0)|int if total_bookings > 0 else 0 }}%
+          </div>
+          <div class="text-xs text-muted mt-1">Order fulfillment rate</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 0;">
+        <div class="card-body">
+          <div class="text-sm font-bold text-muted uppercase">Support Inquiries</div>
+          <div class="text-2xl font-bold mt-1" style="color: {{ 'var(--color-error)' if open_support_messages > 0 else 'var(--color-success)' }};">
+            {{ open_support_messages }}
+          </div>
+          <div class="text-xs text-muted mt-1">
+            <a href="{{ url_for('admin_support') }}" style="text-decoration: underline;">{{ total_support_messages }} total tickets</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1.35fr; gap: 1.5rem; align-items: flex-start;">
+      <!-- Category Breakdown -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Worker Trade Distribution</h3>
+        </div>
+        <div class="card-body p-0">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th class="text-right">Active Pros</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in category_stats %}
+                <tr>
+                  <td><strong>{{ c.category }}</strong></td>
+                  <td class="text-right font-bold">{{ c.count }}</td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td colspan="2" class="text-center text-muted">No worker trade data available.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Recent Audit Logs -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Recent System Activity</h3>
+          <a href="{{ url_for('admin_audit_logs') }}" class="text-sm font-semibold">View All Logs</a>
+        </div>
+        <div class="card-body p-0">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Event</th>
+                <th>User</th>
+                <th>Details</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for a in recent_audits %}
+                <tr>
+                  <td>
+                    <span class="badge" style="background:#EFF6FF; color:var(--primary-blue); font-size:0.7rem;">{{ a.action }}</span>
+                  </td>
+                  <td class="text-xs">{{ a.user_name or 'System' }}</td>
+                  <td class="text-xs text-muted" style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ a.details or '—' }}</td>
+                  <td class="text-xs text-muted">{{ a.created_at|format_date }}</td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td colspan="4" class="text-center text-muted">No audit logs recorded yet.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
